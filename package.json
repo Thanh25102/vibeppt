@@ -33,7 +33,8 @@
     "studio": "npm run build && node dist/cli.js studio",
     "site:build": "npm run build && node scripts/site.mjs build",
     "site:serve": "node scripts/site.mjs serve",
-    "test:site": "npm run site:build && node test/site-browser.mjs"
+    "test:site": "npm run site:build && node test/site-browser.mjs",
+    "test:visual": "npm run build && node scripts/visual-gate.mjs"
   },
   "engines": {
     "node": ">=22"

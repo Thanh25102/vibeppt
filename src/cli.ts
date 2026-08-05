@@ -6,7 +6,7 @@ import { spawn } from "node:child_process";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { buildDeck, preparePreview } from "./pptx.js";
 import { formatIssues, hasErrors, loadProject, readJson, validateBrand, type LoadedTemplate } from "./model.js";
-import { inspectPptx, writeQaReport } from "./qa.js";
+import { evaluatePowerPointGeometry, inspectPptx, writeQaReport, type PowerPointRenderReport } from "./qa.js";
 import { startStudio } from "./studio.js";
 import { createPresentationProject } from "./templates.js";
 import { indexLibrary, renderLibrarySelection, renderLibraryShortlist } from "./library.js";
@@ -275,15 +275,27 @@ async function commandQa(args: ParsedArgs): Promise<void> {
   const outputPath = path.resolve(flag(args, "out") ?? path.join(path.dirname(input), "qa-structure.json"));
   const report = await inspectPptx(input);
   await mkdir(path.dirname(outputPath), { recursive: true });
-  await writeQaReport(report, outputPath);
-  console.log(`${report.ok ? "PASS" : "FAIL"}: ${report.slideCount} slides, ${report.editableObjectCount} editable objects`);
-  console.log(`Report: ${outputPath}`);
   if ((process.platform === "win32" && !args.flags.has("structural-only")) || args.flags.has("powerpoint")) {
     const renderDir = path.join(path.dirname(outputPath), "powerpoint-render");
     await prepareOutput(renderDir, true);
     await runPowerShell("powerpoint-export.ps1", ["-InputPptx", input, "-OutputDir", renderDir]);
+    // A quality gate that silently no-ops is worse than no gate, so surface the failure.
+    const render = await readJson<PowerPointRenderReport>(path.join(renderDir, "powerpoint-render.json"))
+      .catch((error: Error) => error);
+    if (render instanceof Error) {
+      report.issues.push({ level: "warning", message: `Could not read the PowerPoint geometry report, so the text-fit checks were skipped: ${render.message}` });
+    } else if (!render.shapes?.length) {
+      report.issues.push({ level: "warning", message: "The PowerPoint geometry report contains no shapes, so the text-fit checks were skipped." });
+    } else {
+      report.issues.push(...evaluatePowerPointGeometry(render));
+    }
+    report.ok = !report.issues.some((issue) => issue.level === "error");
     console.log(`PowerPoint render: ${renderDir}`);
   }
+  await writeQaReport(report, outputPath);
+  console.log(`${report.ok ? "PASS" : "FAIL"}: ${report.slideCount} slides, ${report.editableObjectCount} editable objects`);
+  for (const issue of report.issues) console.log(`  ${issue.level === "error" ? "ERROR" : "WARN "} ${issue.message}`);
+  console.log(`Report: ${outputPath}`);
   if (!report.ok) process.exitCode = 1;
 }
 

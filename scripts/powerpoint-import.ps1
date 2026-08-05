@@ -65,7 +65,10 @@ try {
     format = $Format
     instruction = "Use these slides as content and visual references. Rebuild the new deck from DeckSpec; do not edit this PPTX in place."
     slides = $slides
-  } | ConvertTo-Json -Depth 6 | Set-Content -Encoding UTF8 (Join-Path $outputPath "reference.json")
+  } | ConvertTo-Json -Depth 6 | Out-String | ForEach-Object {
+    # Windows PowerShell's -Encoding UTF8 emits a BOM that JSON.parse refuses to read.
+    [System.IO.File]::WriteAllText((Join-Path $outputPath "reference.json"), $_, (New-Object System.Text.UTF8Encoding $false))
+  }
 }
 finally {
   if ($presentation) { try { $presentation.Close() } catch { } }

@@ -41,7 +41,8 @@ function isInside(root: string, target: string): boolean {
 export async function readJson<T>(filePath: string): Promise<T> {
   const content = await readFile(filePath, "utf8");
   try {
-    return JSON.parse(content) as T;
+    // Windows PowerShell 5.1 writes UTF-8 with a BOM, which JSON.parse rejects outright.
+    return JSON.parse(content.replace(/^﻿/, "")) as T;
   } catch (error) {
     throw new Error(`Invalid JSON in ${filePath}: ${(error as Error).message}`);
   }
