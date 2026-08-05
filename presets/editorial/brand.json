@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "id": "editorial",
+  "name": "Editorial Paper",
+  "fonts": {
+    "display": "Segoe UI",
+    "body": "Segoe UI",
+    "fallback": "Arial"
+  },
+  "themes": {
+    "dark": {
+      "bg": "#171513",
+      "bgDeep": "#0F0E0D",
+      "panel": "#24211E",
+      "panelSoft": "#2D2925",
+      "ink": "#FCF8F0",
+      "muted": "#B9AEA0",
+      "line": "#453E36",
+      "accent": "#FF775F",
+      "accent2": "#75B4D4",
+      "accent3": "#E7B35A",
+      "good": "#77C59A",
+      "warn": "#E7B35A"
+    },
+    "light": {
+      "bg": "#F7F2E8",
+      "bgDeep": "#EDE4D6",
+      "panel": "#FFFDF8",
+      "panelSoft": "#EFE7DA",
+      "ink": "#201C18",
+      "muted": "#6D6359",
+      "line": "#D8CEC0",
+      "accent": "#D84B38",
+      "accent2": "#387C9D",
+      "accent3": "#A96B13",
+      "good": "#2D8756",
+      "warn": "#A96B13"
+    }
+  },
+  "style": {
+    "radius": 12,
+    "visualDirection": "Premium editorial report, tactile paper color, disciplined typography, quiet data visualisation.",
+    "imagePromptPrefix": "Original editorial business photograph, natural light and tactile detail, no text, composed for a premium report."
+  }
+}

@@ -1,0 +1,182 @@
+{
+  "version": 1,
+  "meta": {
+    "title": "Northstar Operations",
+    "language": "en",
+    "audience": "Operations and commercial leaders",
+    "purpose": "Introduce a decision workspace for field operations",
+    "durationMinutes": 20,
+    "author": "VibePPT",
+    "company": "Northstar"
+  },
+  "brandProfile": "../../presets/cinematic/brand.json",
+  "theme": "dark",
+  "outputMode": "hybrid",
+  "sections": [
+    {
+      "id": "opening",
+      "title": "Opening",
+      "slides": [
+        {
+          "id": "opening",
+          "kind": "hero",
+          "eyebrow": "Operations, made legible",
+          "title": "See the signal.\nMove with confidence.",
+          "body": "Northstar turns scattered operational evidence into one calm decision surface.",
+          "tags": ["Live context", "Evidence", "Action"],
+          "notes": "Open with the operator problem, not the feature list. Ask where decisions currently slow down."
+        },
+        {
+          "id": "problem",
+          "kind": "statement",
+          "eyebrow": "The operating gap",
+          "title": "More dashboards did not create more clarity.",
+          "body": "Teams still assemble the same incident by hand across messages, spreadsheets and disconnected systems.",
+          "items": [
+            {"label": "01", "title": "Signal", "body": "Know what changed."},
+            {"label": "02", "title": "Context", "body": "Understand why it matters."},
+            {"label": "03", "title": "Action", "body": "Assign the next move."}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "product",
+      "title": "Product",
+      "slides": [
+        {
+          "id": "pillars",
+          "kind": "card-grid",
+          "eyebrow": "One workspace",
+          "title": "Four jobs, without four tools.",
+          "items": [
+            {"label": "01", "title": "Observe", "body": "Bring current status and anomalies into view.", "tone": "accent"},
+            {"label": "02", "title": "Investigate", "body": "Move from an alert to its supporting evidence.", "tone": "blue"},
+            {"label": "03", "title": "Coordinate", "body": "Give the issue an owner, state and next action.", "tone": "green"},
+            {"label": "04", "title": "Learn", "body": "Turn repeated incidents into operating changes.", "tone": "amber"}
+          ]
+        },
+        {
+          "id": "workflow",
+          "kind": "process",
+          "eyebrow": "Operator flow",
+          "title": "From signal to accountable action.",
+          "renderMode": "native",
+          "items": [
+            {"label": "01", "title": "Detect", "body": "A source reports a meaningful change.", "tone": "accent"},
+            {"label": "02", "title": "Verify", "body": "The operator checks evidence and context.", "tone": "blue"},
+            {"label": "03", "title": "Assign", "body": "A named owner receives the next action.", "tone": "amber"},
+            {"label": "04", "title": "Resolve", "body": "Outcome and reasoning stay with the incident.", "tone": "green"}
+          ]
+        },
+        {
+          "id": "metrics",
+          "kind": "metrics",
+          "eyebrow": "Pilot scorecard",
+          "title": "Measure the handoff, not the hype.",
+          "body": "The first pilot follows three operational outcomes.",
+          "items": [
+            {"label": "Time to verify", "title": "−38%", "body": "Median from alert to validated incident.", "tone": "accent"},
+            {"label": "Ownership", "title": "96%", "body": "Incidents with a named accountable owner.", "tone": "blue"},
+            {"label": "Closed loop", "title": "84%", "body": "Resolved with outcome and supporting evidence.", "tone": "green"}
+          ]
+        },
+        {
+          "id": "trend",
+          "kind": "chart",
+          "eyebrow": "Weekly movement",
+          "title": "The queue becomes calmer as context improves.",
+          "body": "Illustrative pilot data for validating the editable chart pipeline.",
+          "renderMode": "native",
+          "chart": {
+            "type": "line",
+            "categories": ["W1", "W2", "W3", "W4", "W5", "W6"],
+            "series": [
+              {"name": "Open incidents", "values": [42, 39, 35, 28, 24, 19]},
+              {"name": "Resolved in shift", "values": [18, 21, 24, 29, 31, 34]}
+            ]
+          }
+        },
+        {
+          "id": "workspace",
+          "kind": "feature",
+          "eyebrow": "Decision workspace",
+          "title": "Evidence stays beside the decision.",
+          "body": "A focused surface combines current state, supporting context and the next accountable action.",
+          "items": [
+            {"label": "A", "title": "Current state", "body": "What changed and when."},
+            {"label": "B", "title": "Evidence", "body": "The material needed to verify."},
+            {"label": "C", "title": "Next move", "body": "Owner, state and due point."}
+          ]
+        },
+        {
+          "id": "architecture",
+          "kind": "architecture",
+          "eyebrow": "Information flow",
+          "title": "Keep systems authoritative. Add one decision layer.",
+          "renderMode": "native",
+          "diagram": {
+            "layout": "horizontal",
+            "nodes": [
+              {"id": "sources", "label": "Operational sources", "detail": "Sensors · systems · people", "tone": "blue"},
+              {"id": "northstar", "label": "Northstar", "detail": "Context · workflow · evidence", "tone": "accent"},
+              {"id": "teams", "label": "Operating teams", "detail": "Decide · assign · resolve", "tone": "green"}
+            ],
+            "edges": [
+              {"from": "sources", "to": "northstar"},
+              {"from": "northstar", "to": "teams"}
+            ]
+          }
+        },
+        {
+          "id": "comparison",
+          "kind": "comparison",
+          "eyebrow": "Before and after",
+          "title": "Replace coordination debt with one visible loop.",
+          "items": [
+            {"label": "Before", "title": "Assemble the incident", "body": "Search chats, exports and dashboards before anyone can decide.", "tone": "neutral"},
+            {"label": "With Northstar", "title": "Act on one evidence trail", "body": "Context, ownership and outcome stay together.", "tone": "accent"}
+          ]
+        },
+        {
+          "id": "pilot-table",
+          "kind": "table",
+          "eyebrow": "Pilot contract",
+          "title": "Four weeks. Three measures. One decision.",
+          "renderMode": "native",
+          "table": {
+            "headers": ["Week", "Focus", "Evidence", "Decision"],
+            "rows": [
+              ["1", "Connect", "Source coverage", "Proceed"],
+              ["2", "Operate", "Verification time", "Tune"],
+              ["3", "Coordinate", "Ownership rate", "Expand"],
+              ["4", "Review", "Closed-loop rate", "Adopt"]
+            ]
+          }
+        },
+        {
+          "id": "use-case",
+          "kind": "use-case",
+          "eyebrow": "A day in operation",
+          "title": "A high-priority exception arrives at 09:17.",
+          "body": "The operator verifies the evidence, assigns the field lead and records the outcome before the shift changes.",
+          "items": [
+            {"label": "09:17", "title": "Signal", "body": "Exception enters the queue.", "tone": "accent"},
+            {"label": "09:20", "title": "Verified", "body": "Context confirms priority.", "tone": "blue"},
+            {"label": "09:24", "title": "Assigned", "body": "Field lead accepts the action.", "tone": "amber"},
+            {"label": "09:46", "title": "Resolved", "body": "Outcome and evidence are retained.", "tone": "green"}
+          ]
+        },
+        {
+          "id": "close",
+          "kind": "closing",
+          "eyebrow": "Next step",
+          "title": "Choose one workflow worth making visible.",
+          "body": "Bring one real operating scenario, its evidence sources and the decision that currently takes too long.",
+          "tags": ["One workflow", "Four weeks", "Measured outcome"],
+          "notes": "End with a question: which operational handoff costs the team the most time today?"
+        }
+      ]
+    }
+  ]
+}

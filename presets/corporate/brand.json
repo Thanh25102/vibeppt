@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "id": "corporate",
+  "name": "Corporate Precision",
+  "fonts": {
+    "display": "Segoe UI",
+    "body": "Segoe UI",
+    "fallback": "Arial"
+  },
+  "themes": {
+    "dark": {
+      "bg": "#071421",
+      "bgDeep": "#03101B",
+      "panel": "#102336",
+      "panelSoft": "#162C41",
+      "ink": "#F3F8FC",
+      "muted": "#A5B6C5",
+      "line": "#29435A",
+      "accent": "#39B9FF",
+      "accent2": "#7B8CFF",
+      "accent3": "#FFC857",
+      "good": "#4ED6A3",
+      "warn": "#FFC857"
+    },
+    "light": {
+      "bg": "#F3F7FA",
+      "bgDeep": "#E5EDF3",
+      "panel": "#FFFFFF",
+      "panelSoft": "#EAF1F6",
+      "ink": "#102333",
+      "muted": "#617383",
+      "line": "#C9D7E2",
+      "accent": "#087DB8",
+      "accent2": "#4D5FD1",
+      "accent3": "#A66B00",
+      "good": "#16845B",
+      "warn": "#A66B00"
+    }
+  },
+  "style": {
+    "radius": 16,
+    "visualDirection": "Modern enterprise presentation, precise grid, crisp diagrams, trustworthy and restrained.",
+    "imagePromptPrefix": "Original modern enterprise photograph, clean geometry, credible working environment, no text, leave room for slide copy."
+  }
+}

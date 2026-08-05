@@ -1,0 +1,4 @@
+interface:
+  display_name: "Beautiful PPT"
+  short_description: "Create polished, editable PowerPoint decks"
+  default_prompt: "Use $beautiful-ppt to turn my brief and source files into a polished, editable PowerPoint deck."

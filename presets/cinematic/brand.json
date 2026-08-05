@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "id": "cinematic",
+  "name": "Cinematic Signal",
+  "fonts": {
+    "display": "Segoe UI",
+    "body": "Segoe UI",
+    "fallback": "Arial"
+  },
+  "themes": {
+    "dark": {
+      "bg": "#09090C",
+      "bgDeep": "#050507",
+      "panel": "#14151B",
+      "panelSoft": "#1A1B22",
+      "ink": "#F6F6F8",
+      "muted": "#A3A3AE",
+      "line": "#30313A",
+      "accent": "#E44769",
+      "accent2": "#67ADFF",
+      "accent3": "#F1B75F",
+      "good": "#5AD79C",
+      "warn": "#F2B65D"
+    },
+    "light": {
+      "bg": "#F4F1ED",
+      "bgDeep": "#E8E4DF",
+      "panel": "#FBFAF8",
+      "panelSoft": "#EFECE8",
+      "ink": "#17151B",
+      "muted": "#68626B",
+      "line": "#D6D0D2",
+      "accent": "#C92F53",
+      "accent2": "#286FB7",
+      "accent3": "#A46813",
+      "good": "#1C895C",
+      "warn": "#A46813"
+    }
+  },
+  "style": {
+    "radius": 24,
+    "visualDirection": "Cinematic editorial composition, strong hierarchy, restrained interface detail, generous negative space.",
+    "imagePromptPrefix": "Original cinematic business editorial image, realistic materials and lighting, no text, reserve negative space for slide copy."
+  }
+}
