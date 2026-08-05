@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "id": "executive-minimal",
+  "name": "Executive Minimal",
+  "summary": "Quiet premium pitch for leaders who need the decision, trade-off and next move quickly.",
+  "categories": ["executive-pitch", "strategy", "proposal"],
+  "moods": ["minimal", "premium", "calm"],
+  "defaultTheme": "light",
+  "stylesheet": "./template.css",
+  "brandProfile": "./brand.json",
+  "sampleDeck": "./sample-deck.json",
+  "recipe": "./recipe.md",
+  "preview": { "dark": "./previews/dark.webp", "light": "./previews/light.webp" },
+  "storyRecipe": [
+    { "intent": "decision", "kind": "hero", "purpose": "Name the decision the audience must make." },
+    { "intent": "context", "kind": "statement", "purpose": "Compress the context into one governing insight." },
+    { "intent": "options", "kind": "comparison", "purpose": "Show the real alternatives and trade-offs." },
+    { "intent": "evidence", "kind": "metrics", "purpose": "Use only the few numbers that affect the decision." },
+    { "intent": "path", "kind": "timeline", "purpose": "Make ownership and sequence explicit." },
+    { "intent": "ask", "kind": "closing", "purpose": "State the approval or next action required." }
+  ]
+}

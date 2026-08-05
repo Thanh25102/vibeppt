@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "id": "launch-signal",
+  "name": "Launch Signal",
+  "summary": "Cinematic product launch with a sharp hook, dominant product visual and decisive close.",
+  "categories": ["product-launch", "product-demo", "pitch"],
+  "moods": ["cinematic", "bold", "premium"],
+  "defaultTheme": "dark",
+  "stylesheet": "./template.css",
+  "brandProfile": "./brand.json",
+  "sampleDeck": "./sample-deck.json",
+  "recipe": "./recipe.md",
+  "preview": { "dark": "./previews/dark.webp", "light": "./previews/light.webp" },
+  "storyRecipe": [
+    { "intent": "hook", "kind": "hero", "purpose": "Name the change in one memorable line." },
+    { "intent": "tension", "kind": "statement", "purpose": "Show why the current path is no longer enough." },
+    { "intent": "product-moment", "kind": "feature", "purpose": "Demonstrate the workflow-changing moment." },
+    { "intent": "value", "kind": "card-grid", "purpose": "Translate capability into audience value." },
+    { "intent": "proof", "kind": "metrics", "purpose": "Ground the promise in sourced evidence." },
+    { "intent": "next-step", "kind": "closing", "purpose": "End with one concrete action." }
+  ]
+}

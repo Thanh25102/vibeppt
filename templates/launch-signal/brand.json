@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "id": "launch-signal",
+  "name": "Launch Signal",
+  "fonts": { "display": "Segoe UI", "body": "Segoe UI", "fallback": "Arial" },
+  "themes": {
+    "dark": { "bg": "#08080C", "bgDeep": "#030305", "panel": "#15151D", "panelSoft": "#1D1C26", "ink": "#F9F7FB", "muted": "#ABA5B4", "line": "#34313E", "accent": "#FF426F", "accent2": "#6EA8FF", "accent3": "#FFC35C", "good": "#5CDEA3", "warn": "#FFC35C" },
+    "light": { "bg": "#F7F3F5", "bgDeep": "#EBE4E8", "panel": "#FFFDFE", "panelSoft": "#F0E9ED", "ink": "#181419", "muted": "#6F656E", "line": "#D9CED4", "accent": "#D82E58", "accent2": "#376FB9", "accent3": "#9B650D", "good": "#16855A", "warn": "#9B650D" }
+  },
+  "style": { "radius": 26, "visualDirection": "Cinematic launch composition with high contrast, large type and luminous signal accents.", "imagePromptPrefix": "Original cinematic product launch image, dramatic light, premium materials, no text, large negative space." }
+}

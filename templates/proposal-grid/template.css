@@ -1,0 +1,6 @@
+.vp-slide{background-image:linear-gradient(color-mix(in srgb,var(--ink) 4%,transparent) 1px,transparent 1px),linear-gradient(90deg,color-mix(in srgb,var(--ink) 4%,transparent) 1px,transparent 1px);background-size:80px 80px}
+.vp-title-hero{font-size:108px}.vp-eyebrow{color:var(--accent)}
+.vp-card-grid{gap:0;border:1px solid var(--line)}.vp-card{border:0;border-right:1px solid var(--line);border-radius:0;background:color-mix(in srgb,var(--panel) 92%,transparent)}.vp-card:last-child{border-right:0}.vp-card::after{display:none}
+.vp-diagram-node{border-radius:8px;border-top:6px solid var(--tone,var(--accent));box-shadow:0 14px 30px color-mix(in srgb,var(--ink) 8%,transparent)}
+.vp-table-wrap{border-radius:8px}.vp-table th{background:color-mix(in srgb,var(--accent) 9%,var(--panel))}
+.vp-tag{border-radius:3px}.vp-accent-line{height:5px;background:linear-gradient(90deg,var(--accent) 0 18%,var(--accent2) 18% 28%,transparent 28%)}

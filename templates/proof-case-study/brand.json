@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "id": "proof-case-study",
+  "name": "Proof Case Study",
+  "fonts": { "display": "Segoe UI", "body": "Segoe UI", "fallback": "Arial" },
+  "themes": {
+    "dark": { "bg": "#0B1513", "bgDeep": "#050B0A", "panel": "#14231F", "panelSoft": "#1A2D28", "ink": "#F3FAF7", "muted": "#A5BBB3", "line": "#2D4B41", "accent": "#4DDB9B", "accent2": "#6EABDF", "accent3": "#E5B663", "good": "#4DDB9B", "warn": "#E5B663" },
+    "light": { "bg": "#F2F7F4", "bgDeep": "#E4EEE8", "panel": "#FCFFFD", "panelSoft": "#E9F2ED", "ink": "#15251F", "muted": "#61746D", "line": "#C8D9D0", "accent": "#16835B", "accent2": "#3878A8", "accent3": "#9B6B16", "good": "#16835B", "warn": "#9B6B16" }
+  },
+  "style": { "radius": 14, "visualDirection": "Evidence-led case study with calm green signals, numbered stages and clear source hierarchy.", "imagePromptPrefix": "Original credible workplace documentary image, real operational detail, neutral light, no text." }
+}

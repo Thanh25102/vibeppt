@@ -12,7 +12,7 @@ Turn source material into a coherent visual story, then use the local `vibeppt` 
 1. Inspect every supplied source before proposing the story. Recover the audience, decision, duration, facts, required claims, screenshots, and brand material. Do not make the user restate information already present in files.
 2. If the source includes a PPTX on Windows, run `vibeppt import-pptx source.pptx --out sources/reference --force`, then inspect `reference.json` and the rendered slide images.
 3. Choose one narrative spine. Split large decks into sections of 8–15 slides so each section can be reviewed independently. Keep factual claims traceable in `sourceRefs` or speaker notes.
-4. Select a preset or create a brand profile. If no presentation project exists, run `vibeppt init <deck-folder> --preset cinematic`. Read [references/deckspec.md](references/deckspec.md) before authoring `deck.json`.
+4. If Studio created the project, read `brief.md`, `template/template.json`, and `template/recipe.md` before authoring. Preserve the selected `templateProfile` and theme unless the brief clearly requires a different direction. If no presentation project exists, run `vibeppt init <deck-folder> --template launch-signal`. Read [references/deckspec.md](references/deckspec.md) before authoring `deck.json`.
 5. Use original generated images only when a bitmap visual materially improves the story. Save them under `assets/`, ask for no embedded text, and create theme-specific variants when light and dark treatments differ. Use native slide objects for data, processes, topology, comparisons, and tables.
 6. Author or revise `deck.json`; do not create arbitrary HTML. Let the renderer own layout and presentation controls.
 7. Validate and preview the current section:
@@ -38,6 +38,7 @@ Turn source material into a coherent visual story, then use the local `vibeppt` 
 - Replace marketing filler with diagrams, product evidence, timelines, comparison structures, or concrete use cases.
 - Keep titles short enough to scan. Move explanation into notes instead of shrinking everything.
 - Reuse a small visual grammar, but vary composition enough that consecutive slides do not feel templated.
+- Treat the selected template as a visual grammar and story recommendation, not a requirement to retain sample wording or every recipe step.
 - Do not invent benchmarks, customer outcomes, security properties, product screens, or architecture claims.
 
 ## Native versus flattened

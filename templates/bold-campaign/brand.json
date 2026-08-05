@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "id": "bold-campaign",
+  "name": "Bold Campaign",
+  "fonts": { "display": "Arial Black", "body": "Segoe UI", "fallback": "Arial" },
+  "themes": {
+    "dark": { "bg": "#11100F", "bgDeep": "#050505", "panel": "#201E1B", "panelSoft": "#292520", "ink": "#FFF8EA", "muted": "#C0B4A1", "line": "#4A4237", "accent": "#FF4D21", "accent2": "#7C5CFF", "accent3": "#FFD326", "good": "#70E000", "warn": "#FFD326" },
+    "light": { "bg": "#FFF7E8", "bgDeep": "#F1E5CF", "panel": "#FFFCF4", "panelSoft": "#F4E8D4", "ink": "#171411", "muted": "#706253", "line": "#DAC9AF", "accent": "#D93610", "accent2": "#5437C7", "accent3": "#9B7600", "good": "#3D7C00", "warn": "#9B7600" }
+  },
+  "style": { "radius": 8, "visualDirection": "Graphic campaign poster style, oversized type, hard color blocks and energetic rhythm.", "imagePromptPrefix": "Original bold campaign image, graphic lighting and saturated color, no text, striking central subject." }
+}

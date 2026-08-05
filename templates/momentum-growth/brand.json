@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "id": "momentum-growth",
+  "name": "Momentum Growth",
+  "fonts": { "display": "Segoe UI", "body": "Segoe UI", "fallback": "Arial" },
+  "themes": {
+    "dark": { "bg": "#071019", "bgDeep": "#03070B", "panel": "#101D28", "panelSoft": "#162633", "ink": "#F3F8FB", "muted": "#9FB2BF", "line": "#29404F", "accent": "#25D7C1", "accent2": "#4C8DFF", "accent3": "#FFB84D", "good": "#62DF87", "warn": "#FFB84D" },
+    "light": { "bg": "#F1F7F8", "bgDeep": "#E1ECEE", "panel": "#FCFFFF", "panelSoft": "#E8F1F3", "ink": "#12242B", "muted": "#5F737A", "line": "#C7D8DC", "accent": "#058C7E", "accent2": "#2C65C6", "accent3": "#A56A0B", "good": "#25834A", "warn": "#A56A0B" }
+  },
+  "style": { "radius": 20, "visualDirection": "Data-forward growth story with luminous metrics, directional grids and clear analytical hierarchy.", "imagePromptPrefix": "Original modern growth team image, analytical environment, crisp directional light, no text." }
+}

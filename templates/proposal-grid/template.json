@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "id": "proposal-grid",
+  "name": "Proposal Grid",
+  "summary": "Structured sales proposal that connects customer needs, solution scope, delivery and next action.",
+  "categories": ["sales-proposal", "solution", "commercial"],
+  "moods": ["structured", "professional", "precise"],
+  "defaultTheme": "light",
+  "stylesheet": "./template.css",
+  "brandProfile": "./brand.json",
+  "sampleDeck": "./sample-deck.json",
+  "recipe": "./recipe.md",
+  "preview": { "dark": "./previews/dark.webp", "light": "./previews/light.webp" },
+  "storyRecipe": [
+    { "intent": "customer-goal", "kind": "hero", "purpose": "Lead with the customer's desired change." },
+    { "intent": "current-state", "kind": "statement", "purpose": "Reflect the understood problem and constraints." },
+    { "intent": "solution", "kind": "architecture", "purpose": "Show how the proposed pieces work together." },
+    { "intent": "scope", "kind": "table", "purpose": "Separate included work, assumptions and exclusions." },
+    { "intent": "delivery", "kind": "timeline", "purpose": "Define stages, owners and acceptance points." },
+    { "intent": "next-step", "kind": "closing", "purpose": "Ask for the next commercial or technical action." }
+  ]
+}

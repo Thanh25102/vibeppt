@@ -1,0 +1,6 @@
+.vp-slide{background-image:radial-gradient(700px 500px at 100% 100%,color-mix(in srgb,var(--good) 13%,transparent),transparent 72%),linear-gradient(90deg,color-mix(in srgb,var(--good) 4%,transparent) 1px,transparent 1px);background-size:auto,120px 100%}
+.vp-title-hero{font-size:110px}.vp-eyebrow{color:var(--good)}
+.vp-card,.vp-metric,.vp-diagram-node{border-left:7px solid var(--tone,var(--good));border-top-width:1px;box-shadow:0 18px 40px color-mix(in srgb,var(--ink) 7%,transparent)}
+.vp-card-label,.vp-metric-label{display:inline-flex;width:max-content;padding:6px 10px;border-radius:4px;background:color-mix(in srgb,var(--tone,var(--good)) 12%,transparent)}
+.vp-usecase-step{grid-template-columns:140px 1fr;border-left-width:8px}
+.vp-accent-line{height:3px;background:linear-gradient(90deg,var(--good) 0 35%,var(--accent2) 35% 55%,transparent 55%)}

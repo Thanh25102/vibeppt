@@ -1,0 +1,6 @@
+.vp-slide{background-image:linear-gradient(color-mix(in srgb,var(--accent) 5%,transparent) 1px,transparent 1px),linear-gradient(90deg,color-mix(in srgb,var(--accent) 5%,transparent) 1px,transparent 1px),radial-gradient(800px 500px at 90% 0,color-mix(in srgb,var(--accent) 14%,transparent),transparent 70%);background-size:64px 64px,64px 64px,auto}
+.vp-title,.vp-title-hero{letter-spacing:-.045em}.vp-title-hero{font-size:112px}
+.vp-visual{border:8px solid var(--panel);outline:1px solid var(--line);box-shadow:0 24px 70px color-mix(in srgb,var(--ink) 16%,transparent)}
+.vp-visual::before{top:14px;left:16px;width:10px;height:10px;box-shadow:18px 0 0 var(--accent3),36px 0 0 var(--good)}
+.vp-card-grid{gap:16px}.vp-card{border-top-width:2px;box-shadow:0 12px 30px color-mix(in srgb,var(--ink) 7%,transparent)}
+.vp-accent-line{height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2),transparent 72%)}

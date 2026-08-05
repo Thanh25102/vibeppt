@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>VibePPT Studio</title>
+  <link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#gallery" aria-label="VibePPT Studio">
+      <span class="brand-mark">V</span>
+      <span><b>VibePPT</b><small>Template Studio</small></span>
+    </a>
+    <div class="top-actions">
+      <span class="local-badge"><i></i> Local only</span>
+      <button class="ghost-button" id="quitButton" type="button">Thoát Studio</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="screen" id="galleryScreen">
+      <div class="hero-copy">
+        <p class="eyebrow">01 · Chọn hướng thị giác</p>
+        <h1>Đừng chọn bằng tên.<br><em>Hãy nhìn cả câu chuyện.</em></h1>
+        <p>Mỗi template là một hệ bố cục, nhịp kể và cách dùng bằng chứng — không chỉ là một bảng màu khác.</p>
+      </div>
+
+      <div class="gallery-toolbar">
+        <div class="filters" id="filters" aria-label="Lọc template"></div>
+        <div class="theme-switch" role="group" aria-label="Chọn theme preview">
+          <button type="button" data-theme="light">Sáng</button>
+          <button type="button" data-theme="dark" class="is-active">Tối</button>
+        </div>
+      </div>
+
+      <div class="template-grid" id="templateGrid" aria-live="polite"></div>
+    </section>
+
+    <section class="screen is-hidden" id="briefScreen">
+      <button class="back-button" id="backToGallery" type="button">← Quay lại gallery</button>
+      <div class="brief-layout">
+        <aside class="selected-template" id="selectedTemplate"></aside>
+        <form class="brief-form" id="briefForm">
+          <div class="form-heading">
+            <p class="eyebrow">02 · Cho Codex đủ context</p>
+            <h2>Một brief ngắn.<br>Một vòng đầu tốt hơn.</h2>
+          </div>
+
+          <div class="field-grid">
+            <label class="field"><span>Tên project</span><input name="projectName" required maxlength="80" placeholder="product-launch-q4"></label>
+            <label class="field"><span>Tiêu đề bài trình chiếu</span><input name="title" required maxlength="120" placeholder="Ra mắt sản phẩm mới"></label>
+            <label class="field field-wide"><span>Mục tiêu</span><textarea name="goal" required maxlength="600" rows="3" placeholder="Sau buổi trình bày, người xem cần hiểu hoặc quyết định điều gì?"></textarea></label>
+            <label class="field field-wide"><span>Người xem</span><input name="audience" required maxlength="180" placeholder="Trưởng phòng kinh doanh và khách hàng tiềm năng"></label>
+            <label class="field"><span>Thời lượng</span><div class="suffix-input"><input name="durationMinutes" type="number" min="5" max="120" value="25" required><b>phút</b></div></label>
+            <label class="field"><span>Ngôn ngữ</span><select name="language"><option value="vi">Tiếng Việt</option><option value="en">English</option></select></label>
+          </div>
+
+          <div class="picker-grid">
+            <article class="picker-card">
+              <span class="picker-number">A</span><div><h3>Thư mục project</h3><p id="folderLabel">Chưa chọn thư mục</p></div>
+              <button type="button" id="pickFolder">Chọn thư mục</button>
+            </article>
+            <article class="picker-card">
+              <span class="picker-number">B</span><div><h3>Tài liệu nguồn</h3><p id="sourcesLabel">Có thể chọn PPTX, PDF, Word, Excel và hình ảnh</p></div>
+              <button type="button" id="pickSources">Chọn file</button>
+            </article>
+            <article class="picker-card">
+              <span class="picker-number">C</span><div><h3>Logo</h3><p id="logoLabel">Tùy chọn · giữ palette của template</p></div>
+              <button type="button" id="pickLogo">Chọn logo</button>
+            </article>
+          </div>
+
+          <div class="submit-row">
+            <p>Studio chỉ sao chép file vào project local. Không có dữ liệu nào được upload.</p>
+            <button class="primary-button" type="submit">Tạo project <span>→</span></button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <section class="screen success-screen is-hidden" id="successScreen">
+      <div class="success-mark">✓</div>
+      <p class="eyebrow">Project đã sẵn sàng</p>
+      <h2>Template đã chọn.<br>Context đã đóng gói.</h2>
+      <p class="project-path" id="projectPath"></p>
+      <div class="prompt-box"><span>Prompt dành cho Codex</span><p id="promptText"></p></div>
+      <button class="primary-button large" id="openProject" type="button">Mở VS Code &amp; copy prompt <span>↗</span></button>
+      <p class="handoff-note">Trong VS Code: mở Codex → nhấn <kbd>Ctrl</kbd> + <kbd>V</kbd> → gửi.</p>
+      <button class="text-button" id="newProject" type="button">Tạo một project khác</button>
+    </section>
+  </main>
+
+  <dialog id="previewDialog">
+    <button class="dialog-close" id="closePreview" aria-label="Đóng preview">×</button>
+    <div class="dialog-visual"><img id="dialogImage" alt=""></div>
+    <div class="dialog-copy">
+      <p class="eyebrow" id="dialogEyebrow"></p>
+      <h2 id="dialogTitle"></h2>
+      <p id="dialogSummary"></p>
+      <div class="story-flow" id="storyFlow"></div>
+      <button class="primary-button" id="useTemplate" type="button">Dùng template này <span>→</span></button>
+    </div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="/assets/app.js" type="module"></script>
+</body>
+</html>

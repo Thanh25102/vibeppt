@@ -4,7 +4,7 @@ import { pathToFileURL } from "node:url";
 import { chromium, type Browser, type LaunchOptions, type Page } from "playwright";
 import pptxgen from "pptxgenjs";
 import { renderDeckHtml } from "./html.js";
-import { copyAsset, slugify } from "./model.js";
+import { copyAsset, slugify, type LoadedTemplate } from "./model.js";
 import {
   flattenSlides,
   type BrandProfile,
@@ -50,6 +50,7 @@ export interface BuildOptions {
   theme: ThemeName;
   scale?: number;
   outputMode?: "hybrid" | "pixel";
+  template?: LoadedTemplate;
 }
 
 export interface BuildResult {
@@ -86,6 +87,7 @@ export async function preparePreview(
   brandPath: string,
   outDir: string,
   theme: ThemeName,
+  template?: LoadedTemplate,
 ): Promise<PreparedPreview> {
   const previewDir = path.join(outDir, "preview");
   const assetDir = path.join(previewDir, "assets");
@@ -102,7 +104,11 @@ export async function preparePreview(
   }
 
   const htmlPath = path.join(previewDir, "index.html");
-  await writeFile(htmlPath, renderDeckHtml(deck, brand, { theme, assetMap }), "utf8");
+  await writeFile(htmlPath, renderDeckHtml(deck, brand, {
+    theme,
+    assetMap,
+    ...(template ? { templateCss: template.css, templateId: template.profile.id } : {}),
+  }), "utf8");
   return { htmlPath, assetMap };
 }
 
@@ -412,7 +418,7 @@ export async function buildDeck(
   const scale = Math.max(1, Math.min(3, options.scale ?? 2));
   const outputMode = options.outputMode ?? deck.outputMode ?? "hybrid";
   await mkdir(options.outDir, { recursive: true });
-  const { htmlPath, assetMap } = await preparePreview(deck, brand, deckDir, brandPath, options.outDir, options.theme);
+  const { htmlPath, assetMap } = await preparePreview(deck, brand, deckDir, brandPath, options.outDir, options.theme, options.template);
   const capture = await captureDeck(htmlPath, options.outDir, slideCount, scale);
   const pptxPath = path.join(options.outDir, `${slugify(deck.meta.title)}.pptx`);
   await writePowerPoint(deck, brand, options.theme, outputMode, capture.full, capture.backgrounds, capture.measurements, pptxPath);
@@ -426,6 +432,7 @@ export async function buildDeck(
     slideCount,
     outputMode,
     theme: options.theme,
+    template: options.template?.profile.id ?? "classic",
     screenshotScale: scale,
     browser: capture.engine,
     nativeTexts: outputMode === "hybrid" ? nativeTexts : 0,

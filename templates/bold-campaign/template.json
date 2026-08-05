@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "id": "bold-campaign",
+  "name": "Bold Campaign",
+  "summary": "High-energy campaign concept with poster scale, punchy color blocks and memorable beats.",
+  "categories": ["campaign", "go-to-market", "launch"],
+  "moods": ["bold", "playful", "energetic"],
+  "defaultTheme": "dark",
+  "stylesheet": "./template.css",
+  "brandProfile": "./brand.json",
+  "sampleDeck": "./sample-deck.json",
+  "recipe": "./recipe.md",
+  "preview": { "dark": "./previews/dark.webp", "light": "./previews/light.webp" },
+  "storyRecipe": [
+    { "intent": "campaign-line", "kind": "hero", "purpose": "Open with the single line the market should remember." },
+    { "intent": "audience-tension", "kind": "statement", "purpose": "Name the cultural or customer tension." },
+    { "intent": "big-idea", "kind": "feature", "purpose": "Visualize the campaign idea in one frame." },
+    { "intent": "channels", "kind": "card-grid", "purpose": "Show how the idea adapts across touchpoints." },
+    { "intent": "flight", "kind": "timeline", "purpose": "Sequence tease, launch and sustain." },
+    { "intent": "measure", "kind": "metrics", "purpose": "Define the signals that determine success." }
+  ]
+}

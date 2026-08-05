@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "id": "proposal-grid",
+  "name": "Proposal Grid",
+  "fonts": { "display": "Segoe UI", "body": "Segoe UI", "fallback": "Arial" },
+  "themes": {
+    "dark": { "bg": "#0B1420", "bgDeep": "#050A10", "panel": "#142234", "panelSoft": "#1A2B40", "ink": "#F4F7FB", "muted": "#A5B3C4", "line": "#30445C", "accent": "#3B9CFF", "accent2": "#6E7AFF", "accent3": "#F3B74F", "good": "#4DD59A", "warn": "#F3B74F" },
+    "light": { "bg": "#F4F7FA", "bgDeep": "#E6ECF2", "panel": "#FFFFFF", "panelSoft": "#EBF1F6", "ink": "#152333", "muted": "#627284", "line": "#CAD5E1", "accent": "#1475C9", "accent2": "#4A58C2", "accent3": "#9B6B12", "good": "#168159", "warn": "#9B6B12" }
+  },
+  "style": { "radius": 10, "visualDirection": "Structured proposal grid with clear scope boundaries, numbered modules and precise enterprise tone.", "imagePromptPrefix": "Original enterprise solution image, precise geometry, credible workplace detail, no text." }
+}

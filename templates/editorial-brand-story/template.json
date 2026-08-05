@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "id": "editorial-brand-story",
+  "name": "Editorial Brand Story",
+  "summary": "Magazine-like company narrative with tactile color, human detail and a disciplined story arc.",
+  "categories": ["brand-story", "company-profile", "thought-leadership"],
+  "moods": ["editorial", "human", "crafted"],
+  "defaultTheme": "light",
+  "stylesheet": "./template.css",
+  "brandProfile": "./brand.json",
+  "sampleDeck": "./sample-deck.json",
+  "recipe": "./recipe.md",
+  "preview": { "dark": "./previews/dark.webp", "light": "./previews/light.webp" },
+  "storyRecipe": [
+    { "intent": "thesis", "kind": "hero", "purpose": "Open with the belief that defines the brand." },
+    { "intent": "origin", "kind": "statement", "purpose": "Explain the tension that created the company." },
+    { "intent": "people", "kind": "feature", "purpose": "Show the human behavior behind the brand." },
+    { "intent": "principles", "kind": "card-grid", "purpose": "Turn values into observable choices." },
+    { "intent": "proof", "kind": "case-study", "purpose": "Demonstrate the belief in a real situation." },
+    { "intent": "future", "kind": "closing", "purpose": "Invite the audience into the next chapter." }
+  ]
+}

@@ -1,0 +1,6 @@
+.vp-slide{background-image:linear-gradient(color-mix(in srgb,var(--accent) 6%,transparent) 1px,transparent 1px),linear-gradient(90deg,color-mix(in srgb,var(--accent2) 6%,transparent) 1px,transparent 1px),radial-gradient(900px 560px at 85% 10%,color-mix(in srgb,var(--accent) 18%,transparent),transparent 65%);background-size:44px 44px,44px 44px,auto}
+.vp-title-hero{font-size:120px}.vp-eyebrow{color:var(--accent)}
+.vp-metric{background:linear-gradient(145deg,color-mix(in srgb,var(--tone,var(--accent)) 18%,var(--panel)),var(--panel-soft));box-shadow:inset 0 1px color-mix(in srgb,var(--ink) 14%,transparent),0 28px 70px rgba(0,0,0,.22)}
+.vp-metric-value{font-size:126px;background:linear-gradient(90deg,var(--ink),var(--accent));background-clip:text;color:transparent}
+.vp-chart{border-color:color-mix(in srgb,var(--accent) 42%,var(--line));box-shadow:0 30px 80px rgba(0,0,0,.2)}
+.vp-diagram-node{border-radius:999px;min-height:180px}.vp-accent-line{height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2),transparent 68%)}

@@ -5,8 +5,10 @@ import path from "node:path";
 import { spawn } from "node:child_process";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { buildDeck, preparePreview } from "./pptx.js";
-import { formatIssues, hasErrors, loadProject, readJson, validateBrand } from "./model.js";
+import { formatIssues, hasErrors, loadProject, readJson, validateBrand, type LoadedTemplate } from "./model.js";
 import { inspectPptx, writeQaReport } from "./qa.js";
+import { startStudio } from "./studio.js";
+import { createPresentationProject } from "./templates.js";
 import type { BrandProfile, DeckSpec, ThemeName } from "./types.js";
 
 const packageRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -98,7 +100,7 @@ function selectSections(deck: DeckSpec, raw: string | undefined): DeckSpec {
   return { ...deck, sections };
 }
 
-async function sourceBundle(deck: DeckSpec, brand: BrandProfile, outDir: string, assetMap: Map<string, string>): Promise<void> {
+async function sourceBundle(deck: DeckSpec, brand: BrandProfile, outDir: string, assetMap: Map<string, string>, template?: LoadedTemplate): Promise<void> {
   const sourceDir = path.join(outDir, "source");
   const sourceAssetDir = path.join(sourceDir, "assets");
   await mkdir(sourceAssetDir, { recursive: true });
@@ -118,6 +120,12 @@ async function sourceBundle(deck: DeckSpec, brand: BrandProfile, outDir: string,
   }
   const previewAssets = path.join(outDir, "preview", "assets");
   if (await exists(previewAssets)) await cp(previewAssets, sourceAssetDir, { recursive: true });
+  if (template) {
+    await cp(path.dirname(template.profilePath), path.join(sourceDir, "template"), { recursive: true });
+    bundledDeck.templateProfile = "./template/template.json";
+  } else {
+    delete bundledDeck.templateProfile;
+  }
   await writeFile(path.join(sourceDir, "deck.json"), JSON.stringify({ ...bundledDeck, brandProfile: "./brand.json" }, null, 2), "utf8");
   await writeFile(path.join(sourceDir, "brand.json"), JSON.stringify(bundledBrand, null, 2), "utf8");
 }
@@ -146,8 +154,8 @@ async function commandPreview(args: ParsedArgs): Promise<void> {
   const deck = selectSections(project.deck, flag(args, "section") ?? flag(args, "chapter"));
   const theme = themeFrom(args, deck.theme ?? "dark");
   const outDir = await prepareOutput(flag(args, "out") ?? "output/preview", args.flags.has("force"));
-  const preview = await preparePreview(deck, project.brand, project.deckDir, project.brandPath, outDir, theme);
-  await sourceBundle(deck, project.brand, outDir, preview.assetMap);
+  const preview = await preparePreview(deck, project.brand, project.deckDir, project.brandPath, outDir, theme, project.template);
+  await sourceBundle(deck, project.brand, outDir, preview.assetMap, project.template);
   console.log(`Preview: ${pathToFileURL(preview.htmlPath).href}`);
 }
 
@@ -160,8 +168,11 @@ async function commandBuild(args: ParsedArgs): Promise<void> {
   const scale = Number(flag(args, "scale") ?? 2);
   if (!Number.isFinite(scale) || scale < 1 || scale > 3) throw new Error("--scale must be a number from 1 to 3.");
   const outDir = await prepareOutput(flag(args, "out") ?? "output/build", args.flags.has("force"));
-  const result = await buildDeck(deck, project.brand, project.deckDir, project.brandPath, { outDir, theme, outputMode: mode, scale });
-  await sourceBundle(deck, project.brand, outDir, result.assetMap);
+  const result = await buildDeck(deck, project.brand, project.deckDir, project.brandPath, {
+    outDir, theme, outputMode: mode, scale,
+    ...(project.template ? { template: project.template } : {}),
+  });
+  await sourceBundle(deck, project.brand, outDir, result.assetMap, project.template);
   const renderReport = await readJson<Record<string, unknown>>(result.reportPath);
   const structure = await inspectPptx(result.pptxPath);
   await writeFile(result.reportPath, JSON.stringify({ ...renderReport, structure }, null, 2), "utf8");
@@ -172,7 +183,26 @@ async function commandBuild(args: ParsedArgs): Promise<void> {
 }
 
 async function commandInit(args: ParsedArgs): Promise<void> {
-  const target = path.resolve(required(args.positionals[1], "Usage: vibeppt init <directory> [--preset cinematic]"));
+  const target = path.resolve(required(args.positionals[1], "Usage: vibeppt init <directory> [--template launch-signal]"));
+  const templateId = flag(args, "template");
+  if (templateId) {
+    const title = flag(args, "title") ?? path.basename(target);
+    const created = await createPresentationProject({
+      targetDirectory: target,
+      templateId,
+      theme: themeFrom(args),
+      brief: {
+        projectName: path.basename(target),
+        title,
+        goal: flag(args, "goal") ?? "Create a clear, persuasive presentation.",
+        audience: flag(args, "audience") ?? "Business stakeholders",
+        durationMinutes: Number(flag(args, "duration") ?? 25),
+        language: flag(args, "language") === "en" ? "en" : "vi",
+      },
+    });
+    console.log(`Created: ${created.projectPath}`);
+    return;
+  }
   const preset = flag(args, "preset") ?? "cinematic";
   const presetPath = path.join(packageRoot, "presets", preset, "brand.json");
   if (!(await exists(presetPath))) throw new Error(`Unknown preset: ${preset}`);
@@ -247,11 +277,16 @@ async function commandQa(args: ParsedArgs): Promise<void> {
   if (!report.ok) process.exitCode = 1;
 }
 
+async function commandStudio(args: ParsedArgs): Promise<void> {
+  await startStudio({ openBrowser: !args.flags.has("no-open") });
+}
+
 function help(): void {
   console.log(`VibePPT — local-first, hybrid PowerPoint generation
 
 Commands:
-  vibeppt init <dir> [--preset cinematic|editorial|corporate]
+  vibeppt studio
+  vibeppt init <dir> [--template id] [--preset cinematic|editorial|corporate]
   vibeppt brand add <id> --from <dir> [--project .]
   vibeppt import-pptx <file.pptx> --out <dir>
   vibeppt lint <deck.json>
@@ -265,6 +300,7 @@ Use --force only when you want to replace the exact output directory.`);
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
   switch (args.positionals[0]) {
+    case "studio": await commandStudio(args); break;
     case "init": await commandInit(args); break;
     case "brand": await commandBrand(args); break;
     case "import-pptx": await commandImport(args); break;

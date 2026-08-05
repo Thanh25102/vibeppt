@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "id": "saas-clarity",
+  "name": "SaaS Clarity",
+  "summary": "Clean software pitch with product-window framing, crisp hierarchy and calm enterprise confidence.",
+  "categories": ["product-demo", "saas", "pitch"],
+  "moods": ["clean", "modern", "trustworthy"],
+  "defaultTheme": "light",
+  "stylesheet": "./template.css",
+  "brandProfile": "./brand.json",
+  "sampleDeck": "./sample-deck.json",
+  "recipe": "./recipe.md",
+  "preview": { "dark": "./previews/dark.webp", "light": "./previews/light.webp" },
+  "storyRecipe": [
+    { "intent": "promise", "kind": "hero", "purpose": "State the product outcome in plain language." },
+    { "intent": "workflow", "kind": "process", "purpose": "Show how work moves today and tomorrow." },
+    { "intent": "product", "kind": "screenshot", "purpose": "Anchor the story in the real interface." },
+    { "intent": "capability", "kind": "card-grid", "purpose": "Group features by customer job." },
+    { "intent": "fit", "kind": "comparison", "purpose": "Make adoption and integration fit visible." },
+    { "intent": "action", "kind": "closing", "purpose": "Propose a focused product walkthrough or pilot." }
+  ]
+}

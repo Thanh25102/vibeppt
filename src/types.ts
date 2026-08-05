@@ -114,9 +114,32 @@ export interface DeckSpec {
   version: 1;
   meta: DeckMeta;
   brandProfile: string;
+  templateProfile?: string;
   theme?: ThemeName;
   outputMode?: "hybrid" | "pixel";
   sections: DeckSection[];
+}
+
+export interface TemplateStoryStep {
+  intent: string;
+  kind: SlideKind;
+  purpose: string;
+}
+
+export interface TemplateProfile {
+  version: 1;
+  id: string;
+  name: string;
+  summary: string;
+  categories: string[];
+  moods: string[];
+  defaultTheme: ThemeName;
+  stylesheet: string;
+  brandProfile: string;
+  sampleDeck: string;
+  recipe: string;
+  preview: Record<ThemeName, string>;
+  storyRecipe: TemplateStoryStep[];
 }
 
 export interface BrandTheme {

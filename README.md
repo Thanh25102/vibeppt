@@ -1,6 +1,6 @@
 # VibePPT
 
-VibePPT is a local-first Codex workflow and Node CLI for building visual Microsoft PowerPoint decks without reducing the result to a wall of marketing text.
+VibePPT is a local-first template studio, Codex workflow, and Node CLI for building visual Microsoft PowerPoint decks without reducing the result to a wall of marketing text.
 
 The editable source is `deck.json`. The same source produces:
 
@@ -34,7 +34,17 @@ Run the installer:
 powershell -ExecutionPolicy Bypass -File .\scripts\install.ps1
 ```
 
-The installer builds and links `vibeppt`, verifies PowerPoint, and installs the `beautiful-ppt` Codex skill under the current Windows user. Restart Codex after installation.
+The installer builds and links `vibeppt`, verifies PowerPoint, installs the `beautiful-ppt` Codex skill, and adds **VibePPT Studio** to the Windows Start Menu. Restart Codex after installation.
+
+## Visual workflow
+
+1. Open **VibePPT Studio** from the Start Menu.
+2. Browse eight original Sales and Marketing templates with light/dark contact sheets.
+3. Pick a folder, enter a short brief, and optionally attach source files and a logo.
+4. Click **Open VS Code & copy prompt**.
+5. Open Codex, press `Ctrl+V`, and send.
+
+Studio binds only to `127.0.0.1`, does not call a cloud service, and never asks for an API key. It creates a portable presentation project and hands the actual authoring/build work to the installed skill.
 
 Then the customer can ask:
 
@@ -45,7 +55,7 @@ Codex reads the brief and attachments, authors the DeckSpec, uses its own image-
 ## Quick start
 
 ```powershell
-vibeppt init .\customer-deck --preset cinematic
+vibeppt init .\customer-deck --template launch-signal
 cd .\customer-deck
 vibeppt lint .\deck.json
 vibeppt preview .\deck.json --out .\output\preview --force
@@ -53,7 +63,7 @@ vibeppt build .\deck.json --mode hybrid --out .\output\final --force
 vibeppt qa .\output\final\northstar-operations.pptx
 ```
 
-Available presets are `cinematic`, `editorial`, and `corporate`. Use `--theme light` or `--theme dark`. For a long deck, use `--section <id>` to build one 8–15-slide chapter before the full export.
+Available templates are `launch-signal`, `saas-clarity`, `executive-minimal`, `bold-campaign`, `editorial-brand-story`, `proof-case-study`, `momentum-growth`, and `proposal-grid`. Legacy presets remain supported. Use `--theme light` or `--theme dark`. For a long deck, use `--section <id>` to build one 8–15-slide chapter before the full export.
 
 ## Existing PPTX as input
 
@@ -85,7 +95,8 @@ output/final/
 ├── qa.json
 └── source/
     ├── deck.json
-    └── brand.json
+    ├── brand.json
+    └── template/
 ```
 
 `--mode hybrid` is the default. Set `renderMode: "flatten"` on one dense chart/table/diagram when native PowerPoint objects cannot hold the intended visual. Use `--mode pixel` only when editability is not required.
@@ -95,7 +106,8 @@ output/final/
 ```bash
 npm install --ignore-scripts
 npm test
+npm run previews
 npm run sample
 ```
 
-The v1 ceiling is intentional: fixed renderer components, new-deck generation, and PowerPoint desktop QA. It does not include a browser editor, arbitrary HTML input, animation round-tripping, SmartArt preservation, collaboration, or a hosted service.
+The v0.2 ceiling is intentional: curated templates, guided local project creation, fixed renderer components, and PowerPoint desktop QA. Studio is a chooser and handoff surface, not a drag-and-drop editor. It does not include arbitrary HTML input, animation round-tripping, SmartArt preservation, collaboration, telemetry, or a hosted service.

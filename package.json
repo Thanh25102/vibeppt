@@ -1,6 +1,6 @@
 {
   "name": "@vibeppt/cli",
-  "version": "0.1.0",
+  "version": "0.2.0-alpha.1",
   "private": true,
   "description": "Local-first Codex workflow and CLI for polished hybrid PowerPoint decks.",
   "type": "module",
@@ -10,6 +10,8 @@
   "files": [
     "dist",
     "presets",
+    "templates",
+    "studio",
     "scripts",
     "skill",
     "examples"
@@ -17,7 +19,9 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "npm run build && node --test test/*.test.mjs",
-    "sample": "npm run build && node dist/cli.js build examples/northstar/deck.json --out .artifacts/northstar --force"
+    "sample": "npm run build && node dist/cli.js build examples/northstar/deck.json --out .artifacts/northstar --force",
+    "previews": "npm run build && node scripts/render-template-previews.mjs",
+    "studio": "npm run build && node dist/cli.js studio"
   },
   "engines": {
     "node": ">=22"

@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "id": "momentum-growth",
+  "name": "Momentum Growth",
+  "summary": "Data-forward growth narrative with large metrics, directional charts and a clear commercial engine.",
+  "categories": ["growth", "traction", "marketing-report"],
+  "moods": ["data", "confident", "forward"],
+  "defaultTheme": "dark",
+  "stylesheet": "./template.css",
+  "brandProfile": "./brand.json",
+  "sampleDeck": "./sample-deck.json",
+  "recipe": "./recipe.md",
+  "preview": { "dark": "./previews/dark.webp", "light": "./previews/light.webp" },
+  "storyRecipe": [
+    { "intent": "growth-thesis", "kind": "hero", "purpose": "State what is driving momentum now." },
+    { "intent": "baseline", "kind": "chart", "purpose": "Show the trend and measurement period." },
+    { "intent": "drivers", "kind": "card-grid", "purpose": "Separate leading drivers from lagging results." },
+    { "intent": "funnel", "kind": "process", "purpose": "Explain how demand becomes retained value." },
+    { "intent": "economics", "kind": "metrics", "purpose": "Highlight the few commercial ratios that matter." },
+    { "intent": "bets", "kind": "closing", "purpose": "Name the next growth bets and their gates." }
+  ]
+}

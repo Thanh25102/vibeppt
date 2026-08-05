@@ -7,7 +7,15 @@ import {
   type DeckSpec,
   type LintIssue,
   type SlideSpec,
+  type TemplateProfile,
 } from "./types.js";
+
+export interface LoadedTemplate {
+  profile: TemplateProfile;
+  profilePath: string;
+  cssPath: string;
+  css: string;
+}
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -15,6 +23,15 @@ function isObject(value: unknown): value is Record<string, unknown> {
 
 function isHex(value: unknown): value is string {
   return typeof value === "string" && /^#[0-9a-f]{6}$/i.test(value);
+}
+
+function isLocalReference(value: unknown): value is string {
+  return typeof value === "string" && Boolean(value.trim()) && !/^(?:https?:)?\/\//i.test(value);
+}
+
+function isInside(root: string, target: string): boolean {
+  const relative = path.relative(path.resolve(root), path.resolve(target));
+  return relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative));
 }
 
 export async function readJson<T>(filePath: string): Promise<T> {
@@ -37,6 +54,33 @@ export async function loadProject(deckPath: string, brandOverride?: string) {
   const brand = await readJson<BrandProfile>(brandPath);
   const brandIssues = validateBrand(brand);
   const fileIssues: LintIssue[] = [];
+  let template: LoadedTemplate | undefined;
+  if (deck.templateProfile) {
+    const profilePath = path.resolve(deckDir, deck.templateProfile);
+    if (!isInside(deckDir, profilePath)) throw new Error("Template profile must stay inside the presentation project.");
+    const profile = await readJson<TemplateProfile>(profilePath);
+    fileIssues.push(...validateTemplate(profile));
+    const templateDir = path.dirname(profilePath);
+    for (const reference of [profile.brandProfile, profile.sampleDeck, profile.recipe, profile.preview?.dark, profile.preview?.light]) {
+      if (!isLocalReference(reference)) continue;
+      const resolved = path.resolve(templateDir, reference);
+      if (!isInside(templateDir, resolved) || !(await stat(resolved).catch(() => null))?.isFile()) {
+        fileIssues.push({ level: "error", path: "template", message: `Asset not found or outside template directory: ${reference}` });
+      }
+    }
+    const cssPath = path.resolve(templateDir, profile.stylesheet ?? "");
+    if (!isInside(templateDir, cssPath)) {
+      fileIssues.push({ level: "error", path: "template.stylesheet", message: "Stylesheet must stay inside the template directory." });
+    } else {
+      const css = await readFile(cssPath, "utf8").catch(() => "");
+      if (!css) fileIssues.push({ level: "error", path: "template.stylesheet", message: `Asset not found: ${profile.stylesheet}` });
+      else if (/<\/style\b|@import\b|url\s*\(\s*["']?(?:https?:|\/\/)/i.test(css)) {
+        fileIssues.push({ level: "error", path: "template.stylesheet", message: "Style tags, remote imports, and remote URLs are not allowed." });
+      } else {
+        template = { profile, profilePath, cssPath, css };
+      }
+    }
+  }
   const brandLogo = isObject(brand) && typeof brand.logo === "string" ? brand.logo : undefined;
   if (brandLogo && !(await stat(path.resolve(path.dirname(brandPath), brandLogo)).catch(() => null))?.isFile()) {
     fileIssues.push({ level: "error", path: "brand.logo", message: `Asset not found: ${brandLogo}` });
@@ -51,7 +95,7 @@ export async function loadProject(deckPath: string, brandOverride?: string) {
     }
   }
   const issues = [...deckIssues, ...brandIssues, ...fileIssues];
-  return { absoluteDeckPath, deckDir, deck, brandPath, brand, issues };
+  return { absoluteDeckPath, deckDir, deck, brandPath, brand, template, issues };
 }
 
 export function validateDeck(value: unknown): LintIssue[] {
@@ -70,6 +114,9 @@ export function validateDeck(value: unknown): LintIssue[] {
   }
   if (typeof value.brandProfile !== "string" || !value.brandProfile.trim()) {
     error("brandProfile", "A brand profile path is required.");
+  }
+  if (value.templateProfile !== undefined && !isLocalReference(value.templateProfile)) {
+    error("templateProfile", "Template profile must be a local file path.");
   }
   if (value.theme !== undefined && value.theme !== "dark" && value.theme !== "light") error("theme", "Theme must be dark or light.");
   if (value.outputMode !== undefined && value.outputMode !== "hybrid" && value.outputMode !== "pixel") error("outputMode", "Output mode must be hybrid or pixel.");
@@ -203,6 +250,38 @@ export function validateBrand(value: unknown): LintIssue[] {
     for (const key of ["bg", "bgDeep", "panel", "panelSoft", "ink", "muted", "line", "accent", "accent2", "accent3", "good", "warn"]) {
       if (!isHex(theme[key])) error(`themes.${themeName}.${key}`, "Expected a six-digit hex color such as #112233.");
     }
+  }
+  return issues;
+}
+
+export function validateTemplate(value: unknown): LintIssue[] {
+  const issues: LintIssue[] = [];
+  const error = (pathName: string, message: string) => issues.push({ level: "error" as const, path: `template.${pathName}`, message });
+  if (!isObject(value)) return [{ level: "error", path: "template", message: "Template profile must be a JSON object." }];
+  if (value.version !== 1) error("version", "Only TemplateProfile version 1 is supported.");
+  for (const field of ["id", "name", "summary"] as const) {
+    if (typeof value[field] !== "string" || !value[field].trim()) error(field, `${field} is required.`);
+  }
+  for (const field of ["categories", "moods"] as const) {
+    if (!Array.isArray(value[field]) || value[field].length === 0 || value[field].some((item) => typeof item !== "string" || !item.trim())) {
+      error(field, `${field} must contain text values.`);
+    }
+  }
+  if (value.defaultTheme !== "dark" && value.defaultTheme !== "light") error("defaultTheme", "Default theme must be dark or light.");
+  for (const field of ["stylesheet", "brandProfile", "sampleDeck", "recipe"] as const) {
+    if (!isLocalReference(value[field])) error(field, `${field} must be a local file path.`);
+  }
+  if (!isObject(value.preview) || !isLocalReference(value.preview.dark) || !isLocalReference(value.preview.light)) {
+    error("preview", "Both local dark and light preview paths are required.");
+  }
+  if (!Array.isArray(value.storyRecipe) || value.storyRecipe.length === 0) {
+    error("storyRecipe", "At least one story step is required.");
+  } else {
+    value.storyRecipe.forEach((step, index) => {
+      if (!isObject(step) || typeof step.intent !== "string" || typeof step.purpose !== "string" || !SLIDE_KINDS.includes(step.kind as SlideSpec["kind"])) {
+        error(`storyRecipe[${index}]`, "Each story step needs intent, purpose, and a supported slide kind.");
+      }
+    });
   }
   return issues;
 }

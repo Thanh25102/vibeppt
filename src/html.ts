@@ -15,6 +15,8 @@ import { flattenSlides } from "./types.js";
 export interface HtmlRenderOptions {
   theme?: ThemeName;
   assetMap?: Map<string, string>;
+  templateCss?: string;
+  templateId?: string;
 }
 
 const toneClass = (tone?: SlideItem["tone"]) => `tone-${tone ?? "neutral"}`;
@@ -336,10 +338,11 @@ export function renderDeckHtml(deck: DeckSpec, brand: BrandProfile, options: Htm
   const theme = brand.themes[themeName];
   const slides = flattenSlides(deck);
   const assetMap = options.assetMap ?? new Map<string, string>();
+  const templateId = options.templateId ?? "classic";
   return `<!doctype html>
-<html lang="${escapeHtml(deck.meta.language ?? "en")}" style="${escapeHtml(themeCss(theme, brand))}">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(deck.meta.title)}</title><style>${CSS}.vp-visual-generated{position:absolute}html.vp-export-background [data-ppt-native="text"]::before,html.vp-export-background [data-ppt-native="text"]::after{visibility:visible!important}html.vp-export-background .vp-eyebrow::before{background:var(--accent)!important}</style></head>
-<body><div class="vp-deck">${slides.map((flat) => renderSlide(flat, slides.length, brand, assetMap)).join("\n")}</div>
+<html lang="${escapeHtml(deck.meta.language ?? "en")}" data-template-id="${escapeHtml(templateId)}" style="${escapeHtml(themeCss(theme, brand))}">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(deck.meta.title)}</title><style>${CSS}.vp-visual-generated{position:absolute}html.vp-export-background [data-ppt-native="text"]::before,html.vp-export-background [data-ppt-native="text"]::after{visibility:visible!important}html.vp-export-background .vp-eyebrow::before{background:var(--accent)!important}${options.templateCss ?? ""}</style></head>
+<body class="vp-template-${escapeHtml(templateId)}"><div class="vp-deck">${slides.map((flat) => renderSlide(flat, slides.length, brand, assetMap)).join("\n")}</div>
 <nav class="vp-controls" aria-label="Presentation controls"><button data-prev title="Previous">←</button><span data-counter>01 / ${String(slides.length).padStart(2, "0")}</span><button data-next title="Next">→</button><button data-notes title="Notes">▤</button><button data-fullscreen title="Fullscreen">⛶</button></nav>
 <script>${SCRIPT}</script></body></html>`;
 }

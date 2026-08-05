@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "id": "executive-minimal",
+  "name": "Executive Minimal",
+  "fonts": { "display": "Georgia", "body": "Segoe UI", "fallback": "Arial" },
+  "themes": {
+    "dark": { "bg": "#151412", "bgDeep": "#0B0A09", "panel": "#211F1C", "panelSoft": "#292622", "ink": "#F8F3E9", "muted": "#B8B0A4", "line": "#464039", "accent": "#D7B46A", "accent2": "#87A7B8", "accent3": "#CE806C", "good": "#83B998", "warn": "#D7B46A" },
+    "light": { "bg": "#F6F2E9", "bgDeep": "#EAE3D7", "panel": "#FFFDF8", "panelSoft": "#EEE7DC", "ink": "#25211C", "muted": "#6F685F", "line": "#D8CFC1", "accent": "#946F21", "accent2": "#4E758A", "accent3": "#A24F3B", "good": "#3D7756", "warn": "#946F21" }
+  },
+  "style": { "radius": 4, "visualDirection": "Quiet executive editorial layout, generous margins, serif display type and minimal decoration.", "imagePromptPrefix": "Original premium editorial business image, restrained palette, natural light, no text, wide negative space." }
+}

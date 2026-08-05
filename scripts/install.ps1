@@ -38,6 +38,18 @@ if (Test-Path $skillTarget) {
 }
 Copy-Item -Recurse $skillSource $skillTarget
 
+$startMenu = Join-Path $env:APPDATA "Microsoft\Windows\Start Menu\Programs"
+[System.IO.Directory]::CreateDirectory($startMenu) | Out-Null
+$shortcutPath = Join-Path $startMenu "VibePPT Studio.lnk"
+$shell = New-Object -ComObject WScript.Shell
+$shortcut = $shell.CreateShortcut($shortcutPath)
+$shortcut.TargetPath = Join-Path $PSHOME "powershell.exe"
+$shortcut.Arguments = "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$(Join-Path $packageRoot 'scripts\start-studio.ps1')`""
+$shortcut.WorkingDirectory = $packageRoot
+$shortcut.Description = "Open the local VibePPT template gallery"
+$shortcut.Save()
+
 Write-Host "Installed VibePPT CLI and Codex skill."
+Write-Host "Start Menu shortcut: VibePPT Studio"
 Write-Host "Restart Codex, then ask: Use `$beautiful-ppt to create a presentation from my files."
 Write-Host "CLI check: vibeppt help"

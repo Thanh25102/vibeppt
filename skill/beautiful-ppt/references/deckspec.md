@@ -15,6 +15,7 @@
     "company": "Company"
   },
   "brandProfile": "./brands/default/brand.json",
+  "templateProfile": "./template/template.json",
   "theme": "dark",
   "outputMode": "hybrid",
   "sections": [
@@ -63,6 +64,10 @@ Every slide requires `id`, `kind`, and `title`. Common optional fields are `eyeb
 ```
 
 Use local files only. Remote URLs fail lint so the final deck stays reproducible.
+
+## Template profile
+
+`templateProfile` is optional for legacy decks. Studio-created projects point it to a copied template pack containing `template.json`, `template.css`, `recipe.md`, previews, and the original sample deck. The renderer applies the pack CSS after its safe base layout; the source bundle copies the pack so later builds remain reproducible. Keep template references local and do not add scripts or remote CSS imports.
 
 ## Charts
 

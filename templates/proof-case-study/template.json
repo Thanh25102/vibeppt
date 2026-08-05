@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "id": "proof-case-study",
+  "name": "Proof Case Study",
+  "summary": "Evidence-first customer story that makes the baseline, intervention and observed result easy to trust.",
+  "categories": ["case-study", "customer-proof", "sales"],
+  "moods": ["credible", "human", "evidence-led"],
+  "defaultTheme": "light",
+  "stylesheet": "./template.css",
+  "brandProfile": "./brand.json",
+  "sampleDeck": "./sample-deck.json",
+  "recipe": "./recipe.md",
+  "preview": { "dark": "./previews/dark.webp", "light": "./previews/light.webp" },
+  "storyRecipe": [
+    { "intent": "result", "kind": "hero", "purpose": "Lead with the sourced outcome and customer context." },
+    { "intent": "baseline", "kind": "statement", "purpose": "Show the real operating problem before intervention." },
+    { "intent": "constraints", "kind": "card-grid", "purpose": "Make the environment and limits explicit." },
+    { "intent": "intervention", "kind": "process", "purpose": "Explain what changed and what did not." },
+    { "intent": "evidence", "kind": "metrics", "purpose": "Present measured results with timeframe and source." },
+    { "intent": "transfer", "kind": "closing", "purpose": "State what another customer can test next." }
+  ]
+}

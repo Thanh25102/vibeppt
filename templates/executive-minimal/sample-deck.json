@@ -1,0 +1,116 @@
+{
+  "version": 1,
+  "meta": {
+    "title": "Turn attention into momentum",
+    "language": "en-US",
+    "audience": "Sales and marketing leaders",
+    "purpose": "Show a visual sales story from tension to next action",
+    "durationMinutes": 20,
+    "author": "VibePPT"
+  },
+  "brandProfile": "./brand.json",
+  "templateProfile": "./template.json",
+  "theme": "dark",
+  "outputMode": "hybrid",
+  "sections": [
+    {
+      "id": "story",
+      "title": "The story",
+      "slides": [
+        {
+          "id": "cover",
+          "kind": "hero",
+          "eyebrow": "Product story",
+          "title": "Turn attention\ninto momentum",
+          "body": "A focused narrative system for launches, pitches, proposals and proof.",
+          "tags": ["Visual", "Editable", "Evidence-led"]
+        },
+        {
+          "id": "tension",
+          "kind": "statement",
+          "eyebrow": "The tension",
+          "title": "Your audience decides before the feature list ends.",
+          "body": "Start with the change they care about, then make the product earn its place in the story.",
+          "items": [
+            { "label": "01", "title": "Signal", "body": "One memorable idea", "tone": "accent" },
+            { "label": "02", "title": "Proof", "body": "Concrete product evidence", "tone": "blue" },
+            { "label": "03", "title": "Action", "body": "A specific next step", "tone": "green" }
+          ]
+        },
+        {
+          "id": "product",
+          "kind": "feature",
+          "eyebrow": "The product",
+          "title": "Show the moment that changes the workflow.",
+          "body": "Reserve the largest visual area for the product, not decorative copy.",
+          "items": [
+            { "label": "Now", "title": "See", "body": "The relevant signal appears", "tone": "accent" },
+            { "label": "Next", "title": "Decide", "body": "Context becomes an action", "tone": "blue" }
+          ]
+        },
+        {
+          "id": "value",
+          "kind": "card-grid",
+          "eyebrow": "Why it matters",
+          "title": "Four reasons to keep listening.",
+          "items": [
+            { "label": "Fast", "title": "Less friction", "body": "Reduce the steps between intent and outcome.", "tone": "accent" },
+            { "label": "Clear", "title": "Shared context", "body": "Let every role see the same operating picture.", "tone": "blue" },
+            { "label": "Ready", "title": "Fits reality", "body": "Work with the systems and habits already in place.", "tone": "green" },
+            { "label": "Open", "title": "Easy to extend", "body": "Start focused, then expand when the value is proven.", "tone": "amber" }
+          ]
+        },
+        {
+          "id": "journey",
+          "kind": "process",
+          "eyebrow": "The journey",
+          "title": "Move from interest to proof in four beats.",
+          "diagram": {
+            "layout": "horizontal",
+            "nodes": [
+              { "id": "hook", "label": "Hook", "detail": "Name the change", "tone": "accent" },
+              { "id": "show", "label": "Show", "detail": "Demonstrate the moment", "tone": "blue" },
+              { "id": "prove", "label": "Prove", "detail": "Ground the value", "tone": "green" },
+              { "id": "ask", "label": "Ask", "detail": "Define the next step", "tone": "amber" }
+            ],
+            "edges": [
+              { "from": "hook", "to": "show" },
+              { "from": "show", "to": "prove" },
+              { "from": "prove", "to": "ask" }
+            ]
+          }
+        },
+        {
+          "id": "metrics",
+          "kind": "metrics",
+          "eyebrow": "Proof pattern",
+          "title": "Let the numbers carry one argument.",
+          "items": [
+            { "label": "Adoption", "title": "3×", "body": "Faster path to the first useful outcome", "tone": "accent" },
+            { "label": "Effort", "title": "−42%", "body": "Fewer manual hand-offs in the example flow", "tone": "blue" },
+            { "label": "Confidence", "title": "91%", "body": "Illustrative sample data; replace before delivery", "tone": "green" }
+          ],
+          "notes": "All values are sample content for template preview only. Replace with sourced customer data."
+        },
+        {
+          "id": "choice",
+          "kind": "comparison",
+          "eyebrow": "The choice",
+          "title": "Make the trade-off visible.",
+          "items": [
+            { "label": "Status quo", "title": "More motion", "body": "Scattered tools, repeated explanation and delayed decisions.", "tone": "neutral" },
+            { "label": "With focus", "title": "More momentum", "body": "One shared story, product evidence and a measurable next step.", "tone": "accent" }
+          ]
+        },
+        {
+          "id": "close",
+          "kind": "closing",
+          "eyebrow": "Next step",
+          "title": "Choose one audience.\nProve one outcome.",
+          "body": "Use the first working deck to learn which proof deserves the next slide.",
+          "tags": ["Select", "Build", "Review"]
+        }
+      ]
+    }
+  ]
+}

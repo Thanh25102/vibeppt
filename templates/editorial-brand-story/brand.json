@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "id": "editorial-brand-story",
+  "name": "Editorial Brand Story",
+  "fonts": { "display": "Georgia", "body": "Segoe UI", "fallback": "Arial" },
+  "themes": {
+    "dark": { "bg": "#1A1714", "bgDeep": "#0F0D0B", "panel": "#28231E", "panelSoft": "#312A24", "ink": "#FFF7E9", "muted": "#BDB0A0", "line": "#4D4238", "accent": "#E66D4F", "accent2": "#78A7A0", "accent3": "#DDBB6D", "good": "#78B88E", "warn": "#DDBB6D" },
+    "light": { "bg": "#F6EFE3", "bgDeep": "#E8DDCE", "panel": "#FFF9EF", "panelSoft": "#EEE2D2", "ink": "#27201A", "muted": "#71665C", "line": "#D5C6B4", "accent": "#C54E34", "accent2": "#487E78", "accent3": "#9A721E", "good": "#447B58", "warn": "#9A721E" }
+  },
+  "style": { "radius": 2, "visualDirection": "Premium magazine layout with tactile paper tones, human imagery and editorial typography.", "imagePromptPrefix": "Original documentary editorial photograph, warm natural light, authentic human detail, no text." }
+}

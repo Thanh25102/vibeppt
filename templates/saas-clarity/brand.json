@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "id": "saas-clarity",
+  "name": "SaaS Clarity",
+  "fonts": { "display": "Segoe UI", "body": "Segoe UI", "fallback": "Arial" },
+  "themes": {
+    "dark": { "bg": "#07111F", "bgDeep": "#030A13", "panel": "#102036", "panelSoft": "#152A43", "ink": "#F4F8FC", "muted": "#A5B6C9", "line": "#2B435D", "accent": "#4D9DFF", "accent2": "#8B7BFF", "accent3": "#FFC15C", "good": "#45D7A0", "warn": "#FFC15C" },
+    "light": { "bg": "#F4F8FC", "bgDeep": "#E8F0F7", "panel": "#FFFFFF", "panelSoft": "#EDF4FA", "ink": "#112033", "muted": "#607287", "line": "#CCD9E5", "accent": "#176FD1", "accent2": "#6253C7", "accent3": "#A36A00", "good": "#11825B", "warn": "#A36A00" }
+  },
+  "style": { "radius": 18, "visualDirection": "Bright SaaS presentation with product-window framing, clean grids and credible detail.", "imagePromptPrefix": "Original clean SaaS workplace image, natural modern light, credible enterprise context, no text." }
+}
