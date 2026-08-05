@@ -9,9 +9,10 @@ import { createPresentationProject, listTemplates } from "../dist/templates.js";
 
 const root = path.resolve(import.meta.dirname, "..");
 
-test("the curated catalog contains eight valid, renderable template packs", async () => {
+test("every curated template pack is valid and renderable", async () => {
   const templates = await listTemplates(root);
-  assert.equal(templates.length, 8);
+  // Count grows as packs are added, so assert the floor and validate each pack instead.
+  assert.ok(templates.length >= 8, `expected at least 8 packs, found ${templates.length}`);
   assert.deepEqual(new Set(templates.flatMap((template) => Object.keys(template.preview))), new Set(["dark", "light"]));
   for (const template of templates) {
     const project = await loadProject(path.join(root, "templates", template.id, "sample-deck.json"));

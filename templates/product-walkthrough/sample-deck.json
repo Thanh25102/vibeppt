@@ -1,0 +1,149 @@
+{
+  "version": 1,
+  "meta": {
+    "title": "Product Walkthrough",
+    "language": "en",
+    "audience": "Buyers and operators evaluating the product",
+    "purpose": "Walk a real product surface end to end, not a feature list",
+    "durationMinutes": 20
+  },
+  "brandProfile": "./brand.json",
+  "templateProfile": "./template.json",
+  "theme": "dark",
+  "outputMode": "hybrid",
+  "sections": [
+    {
+      "id": "tour",
+      "title": "Product tour",
+      "timeBudget": "00-20 · 20'",
+      "slides": [
+        {
+          "id": "cover",
+          "kind": "hero",
+          "layout": "cover",
+          "eyebrow": "Product walkthrough",
+          "title": "Show the product, not the pitch.",
+          "titleAccent": "not the pitch",
+          "body": "A guided tour built from real screens, numbered callouts, and a clock the presenter can actually keep.",
+          "tags": ["Screenshot-led", "Editable", "Light & dark"],
+          "notes": "Open on what the audience will see, then move straight to the product surface."
+        },
+        {
+          "id": "question",
+          "kind": "section",
+          "layout": "question",
+          "eyebrow": "01 · Where does the work happen?",
+          "title": "Start at the screen people actually use.",
+          "titleAccent": "actually use",
+          "body": "Every chapter in this deck opens as a question, so the audience always knows what is being answered."
+        },
+        {
+          "id": "walkthrough",
+          "kind": "screenshot",
+          "layout": "walkthrough",
+          "eyebrow": "The console",
+          "title": "Four moves, one screen.",
+          "titleAccent": "one screen",
+          "body": "Numbered callouts sit on the product surface itself, and every one stays editable text in PowerPoint.",
+          "visual": {
+            "src": "./assets/console.svg",
+            "alt": "Product console with navigation, summary cards and a work queue",
+            "fit": "contain",
+            "callouts": [
+              { "label": "01", "title": "Find the work", "body": "Filter down to what is yours", "x": 4, "y": 20 },
+              { "label": "02", "title": "Read the signal", "body": "Three summary cards, no scrolling", "x": 42, "y": 8 },
+              { "label": "03", "title": "Act in place", "body": "Resolve without leaving the queue", "x": 6, "y": 62 },
+              { "label": "04", "title": "Hand it on", "body": "Assign and keep the trail", "x": 58, "y": 78 }
+            ]
+          },
+          "notes": "Walk the four callouts in order. Do not read the labels aloud; narrate the decision at each step."
+        },
+        {
+          "id": "steps",
+          "kind": "process",
+          "layout": "steps",
+          "eyebrow": "02 · How does a task move?",
+          "title": "One flow, four handoffs.",
+          "titleAccent": "four handoffs",
+          "diagram": {
+            "layout": "horizontal",
+            "nodes": [
+              { "id": "detect", "label": "Detect", "detail": "The system raises a signal", "tone": "accent" },
+              { "id": "triage", "label": "Triage", "detail": "A human confirms it matters", "tone": "blue" },
+              { "id": "act", "label": "Act", "detail": "The fix happens in place", "tone": "green" },
+              { "id": "record", "label": "Record", "detail": "The trail survives the shift", "tone": "amber" }
+            ]
+          }
+        },
+        {
+          "id": "options",
+          "kind": "card-grid",
+          "layout": "options",
+          "eyebrow": "03 · What do I choose between?",
+          "title": "Six variants, one behaviour.",
+          "titleAccent": "one behaviour",
+          "items": [
+            { "label": "A", "title": "Desktop", "body": "The full operating surface for daily work.", "tone": "accent" },
+            { "label": "B", "title": "Web", "body": "Same queue, nothing to install.", "tone": "blue" },
+            { "label": "C", "title": "Mobile", "body": "Approve and hand off away from the desk.", "tone": "green" },
+            { "label": "D", "title": "Kiosk", "body": "One screen, one job, no login churn.", "tone": "amber" },
+            { "label": "E", "title": "API", "body": "Drive it from a system you already run.", "tone": "blue" },
+            { "label": "F", "title": "Offline", "body": "Keep working when the link drops.", "tone": "neutral" }
+          ]
+        },
+        {
+          "id": "evidence",
+          "kind": "metrics",
+          "layout": "evidence",
+          "eyebrow": "04 · What does it change?",
+          "title": "Replace the anecdote with a number.",
+          "titleAccent": "a number",
+          "items": [
+            { "label": "Adoption", "title": "3", "body": "surfaces from one build", "tone": "accent" },
+            { "label": "Flow", "title": "4", "body": "handoffs, fully traced", "tone": "blue" },
+            { "label": "Output", "title": "2", "body": "themes from one source", "tone": "green" }
+          ],
+          "notes": "Replace these with sourced figures before delivery. Never ship a placeholder number as evidence."
+        },
+        {
+          "id": "compare",
+          "kind": "comparison",
+          "layout": "compare",
+          "eyebrow": "05 · Why not the usual way?",
+          "title": "A tour beats a feature list.",
+          "titleAccent": "beats a feature list",
+          "items": [
+            { "label": "Feature list", "title": "Everything, in no order", "body": "The audience has to assemble the story themselves, and most of them will not.", "tone": "neutral" },
+            { "label": "Walkthrough", "title": "One path, in order", "body": "Each screen answers the question the previous slide raised.", "tone": "accent" }
+          ]
+        },
+        {
+          "id": "spec",
+          "kind": "table",
+          "layout": "spec",
+          "eyebrow": "06 · What are the hard facts?",
+          "title": "State the specs plainly.",
+          "titleAccent": "plainly",
+          "table": {
+            "headers": ["Surface", "Runs on", "Offline"],
+            "rows": [
+              ["Desktop", "Windows, macOS", "Yes"],
+              ["Web", "Any modern browser", "No"],
+              ["Mobile", "iOS, Android", "Partial"]
+            ]
+          }
+        },
+        {
+          "id": "close",
+          "kind": "closing",
+          "layout": "close",
+          "eyebrow": "Next step",
+          "title": "Pick one workflow.\nWe will walk it together.",
+          "titleAccent": "We will walk it together.",
+          "body": "Bring the screen your team opens first and we will build the tour around it.",
+          "tags": ["1 workflow", "1 session", "1 deck"]
+        }
+      ]
+    }
+  ]
+}

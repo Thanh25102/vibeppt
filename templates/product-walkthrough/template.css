@@ -1,0 +1,67 @@
+.vp-slide{background-image:linear-gradient(color-mix(in srgb,var(--ink) 4%,transparent) 1px,transparent 1px),linear-gradient(90deg,color-mix(in srgb,var(--ink) 4%,transparent) 1px,transparent 1px),radial-gradient(1100px 620px at 82% -6%,color-mix(in srgb,var(--accent) 16%,transparent),transparent 70%);background-size:96px 96px,96px 96px,auto}
+.vp-slide::after{background:linear-gradient(90deg,var(--accent) 0 6px,transparent 6px)}
+.vp-chrome{top:44px}
+.vp-meta{gap:18px;letter-spacing:.14em;font-size:13px}
+.vp-accent-line{height:3px;background:linear-gradient(90deg,var(--accent) 0 26%,var(--accent2) 26% 38%,var(--accent3) 38% 44%,transparent 44%)}
+.vp-eyebrow{color:var(--accent);font-size:17px;letter-spacing:.2em}
+.vp-eyebrow::before{width:38px;height:2px}
+.vp-title{font-weight:780;letter-spacing:-.015em}
+.vp-card,.vp-metric,.vp-diagram-node,.vp-chart,.vp-table-wrap{border-radius:14px;box-shadow:0 26px 60px color-mix(in srgb,var(--bg-deep) 42%,transparent)}
+.vp-card::after{display:none}
+.vp-card{border-left:4px solid var(--tone,var(--accent));border-top-width:1px}
+.vp-tag{border-radius:6px;border-color:color-mix(in srgb,var(--accent) 55%,var(--line))}
+.vp-visual,.vp-hero-visual{border-radius:16px;background:var(--panel-soft)}
+
+.vp-layout-cover .vp-title-hero{max-width:960px;font-size:92px;line-height:1.06}
+.vp-layout-cover .vp-hero-art{right:-10px;width:790px}
+.vp-layout-cover .vp-signal-card{border-radius:14px;transform:none}
+
+.vp-layout-question .vp-section-slide{padding-left:132px;border-left:8px solid var(--accent)}
+.vp-layout-question .vp-eyebrow{font-size:36px;line-height:46px;letter-spacing:.08em;margin-bottom:18px}
+.vp-layout-question .vp-eyebrow::before{width:48px;height:4px}
+.vp-layout-question .vp-title{font-size:98px;max-width:1260px}
+.vp-layout-question .vp-body{font-size:27px}
+
+.vp-layout-walkthrough .vp-feature-copy{width:29%}
+/* Match the art box to the 16:10 visual so `contain` leaves no dead band and callout
+   percentages land on the artwork itself rather than on empty letterbox. */
+.vp-layout-walkthrough .vp-feature-art{width:64%;top:15%;height:70%}
+/* The frame is dropped here, so drop its window-dot marker with it. */
+.vp-layout-walkthrough .vp-visual{border:0;box-shadow:none;background:transparent}
+.vp-layout-walkthrough .vp-visual::after,.vp-layout-walkthrough .vp-visual::before{display:none}
+.vp-layout-walkthrough .vp-title{font-size:58px}
+
+.vp-layout-anatomy .vp-feature-copy{width:46%}
+.vp-layout-anatomy .vp-feature-art{width:44%;right:4%;top:10%;height:80%}
+.vp-layout-anatomy .vp-visual{border:0;box-shadow:none;background:transparent}
+.vp-layout-anatomy .vp-visual::after,.vp-layout-anatomy .vp-visual::before{display:none}
+.vp-layout-anatomy .vp-title{font-size:58px}
+.vp-layout-anatomy .vp-feature-items .vp-card{border-left-width:4px;padding:18px 22px}
+
+.vp-layout-spec .vp-table-wrap{border-radius:14px}
+.vp-layout-spec .vp-table th{font-size:19px;letter-spacing:.06em}
+.vp-layout-spec .vp-table td{font-size:21px;padding-top:17px;padding-bottom:17px}
+
+.vp-layout-steps .vp-diagram-node{min-height:214px;border-radius:14px;border-left:4px solid var(--tone,var(--accent))}
+.vp-layout-steps .vp-diagram-node::after{content:"";position:absolute;right:-46px;top:50%;width:24px;height:2px;background:var(--line)}
+.vp-layout-steps .vp-diagram-node:last-of-type::after{display:none}
+
+.vp-layout-options .vp-card-grid{grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);height:534px}
+.vp-layout-options .vp-card-title{font-size:27px}
+
+.vp-layout-matrix .vp-comparison{grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(2,1fr);gap:14px;height:552px}
+.vp-layout-matrix .vp-card{min-height:0;padding:24px}
+.vp-layout-matrix .vp-card-title{font-size:29px}
+.vp-layout-matrix .vp-card-body{min-height:0;margin-top:10px;font-size:17px}
+
+.vp-layout-evidence .vp-metric{border-top:0;border-left:5px solid var(--tone,var(--accent))}
+.vp-layout-evidence .vp-metric-value{font-size:118px}
+
+.vp-layout-compare .vp-comparison{gap:0;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.vp-layout-compare .vp-card{border:0;border-radius:0;border-left:0}
+.vp-layout-compare .vp-card:first-child{background:var(--panel-soft)}
+.vp-layout-compare .vp-card:last-child{border-left:6px solid var(--accent);background:var(--panel)}
+
+.vp-layout-close .vp-closing{padding-right:360px}
+.vp-layout-close .vp-title{font-size:96px}
+.vp-layout-close .vp-tags{margin-top:44px}

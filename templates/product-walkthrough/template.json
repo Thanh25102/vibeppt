@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "id": "product-walkthrough",
+  "name": "Product Walkthrough",
+  "summary": "Screenshot-led product tour: two-tone headlines, numbered callouts on real product visuals, and a paced section clock.",
+  "categories": ["product-demo", "internal-update", "pitch"],
+  "moods": ["dark", "technical", "guided"],
+  "defaultTheme": "dark",
+  "stylesheet": "./template.css",
+  "brandProfile": "./brand.json",
+  "sampleDeck": "./sample-deck.json",
+  "recipe": "./recipe.md",
+  "preview": { "dark": "./previews/dark.webp", "light": "./previews/light.webp" },
+  "layouts": [
+    { "id": "cover", "name": "Cover", "kind": "hero", "purpose": "Open on the product promise in one line." },
+    { "id": "question", "name": "Question", "kind": "section", "purpose": "Name the next chapter as the question it answers." },
+    { "id": "walkthrough", "name": "Walkthrough", "kind": "screenshot", "purpose": "Put numbered callouts on the real product surface." },
+    { "id": "anatomy", "name": "Anatomy", "kind": "feature", "purpose": "Explain one artifact part by part." },
+    { "id": "steps", "name": "Steps", "kind": "process", "purpose": "Show the operating flow end to end." },
+    { "id": "options", "name": "Options", "kind": "card-grid", "purpose": "Lay out the variants a buyer chooses between." },
+    { "id": "matrix", "name": "Matrix", "kind": "matrix", "purpose": "Map capability against four dimensions." },
+    { "id": "evidence", "name": "Evidence", "kind": "metrics", "purpose": "Carry the argument with sourced numbers." },
+    { "id": "compare", "name": "Compare", "kind": "comparison", "purpose": "Expose the trade-off directly." },
+    { "id": "spec", "name": "Spec", "kind": "table", "purpose": "State the hard facts without decoration." },
+    { "id": "close", "name": "Close", "kind": "closing", "purpose": "End with one concrete next action." }
+  ],
+  "storyRecipe": [
+    { "intent": "promise", "kind": "hero", "purpose": "Say what changes for the user." },
+    { "intent": "question", "kind": "section", "purpose": "Ask the question this chapter answers." },
+    { "intent": "surface", "kind": "screenshot", "purpose": "Show the product with numbered callouts." },
+    { "intent": "flow", "kind": "process", "purpose": "Walk the operating flow." },
+    { "intent": "choice", "kind": "card-grid", "purpose": "Lay out the variants." },
+    { "intent": "proof", "kind": "metrics", "purpose": "Ground it in sourced evidence." },
+    { "intent": "action", "kind": "closing", "purpose": "Ask for one next step." }
+  ]
+}

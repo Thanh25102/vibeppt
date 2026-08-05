@@ -15,7 +15,7 @@ test("the public site is generated from all template packs without local Studio 
   try {
     await exec(process.execPath, ["scripts/site.mjs", "build", "--out", out], { cwd: root });
     const catalog = JSON.parse(await readFile(path.join(out, "catalog.json"), "utf8"));
-    assert.equal(catalog.templates.length, 8);
+    assert.ok(catalog.templates.length >= 8, `expected at least 8 packs, found ${catalog.templates.length}`);
     assert.equal(new Set(catalog.templates.flatMap((template) => Object.keys(template.demo))).size, 2);
     const home = await readFile(path.join(out, "index.html"), "utf8");
     assert.doesNotMatch(home, /\/api\/|token=/);

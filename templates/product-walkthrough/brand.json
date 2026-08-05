@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "id": "product-walkthrough",
+  "name": "Product Walkthrough",
+  "fonts": { "display": "Segoe UI", "body": "Segoe UI", "fallback": "Arial" },
+  "themes": {
+    "dark": {
+      "bg": "#0B0C10", "bgDeep": "#060709", "panel": "#14161D", "panelSoft": "#1B1E27",
+      "ink": "#F4F5F8", "muted": "#9A9FAE", "line": "#2A2E3A",
+      "accent": "#E8544F", "accent2": "#59A9FF", "accent3": "#F0B44C",
+      "good": "#4FC98A", "warn": "#F0B44C"
+    },
+    "light": {
+      "bg": "#F5F4F1", "bgDeep": "#E7E6E2", "panel": "#FFFFFF", "panelSoft": "#EFEEEB",
+      "ink": "#15171C", "muted": "#5F6673", "line": "#D8D8D4",
+      "accent": "#CE3A38", "accent2": "#2F72C8", "accent3": "#B7791B",
+      "good": "#2C8F60", "warn": "#B7791B"
+    }
+  },
+  "style": {
+    "radius": 14,
+    "visualDirection": "Dark technical stage, one hot accent, generous negative space, product surfaces shown at real scale with numbered callouts.",
+    "imagePromptPrefix": "Original clean product interface visual on a dark technical background, generous negative space, one warm accent, no text, no logos."
+  }
+}

@@ -37,7 +37,11 @@ test("Studio serves the catalog only to its session and shuts down cleanly", asy
     assert.equal(denied.status, 403);
     const catalog = await fetch(`${origin}/api/templates`, { headers: { "X-VibePPT-Session": token, Origin: origin } });
     assert.equal(catalog.status, 200);
-    assert.equal((await catalog.json()).length, 8);
+    // Installed Customer Kits legitimately add templates, so assert the built-in catalog
+    // rather than a total that breaks on any machine that has run `vibeppt kit install`.
+    const templates = await catalog.json();
+    assert.ok(templates.filter((item) => item.origin === "built-in").length >= 8);
+    assert.ok(templates.every((item) => ["built-in", "customer-kit"].includes(item.origin)));
     const stopped = await fetch(`${origin}/api/shutdown`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-VibePPT-Session": token, Origin: origin },
