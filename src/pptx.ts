@@ -20,7 +20,11 @@ import {
 
 const WIDTH_PX = 1920;
 const HEIGHT_PX = 1080;
-const PX_PER_INCH = 144;
+// The design canvas is 1920x1080 px mapped onto a 13.333x7.5in slide, so one px is 1/144in.
+// Point sizes must be derived from PX_PER_INCH: hardcoding the 96dpi 0.75 factor renders every
+// native text 1.5x too large, which only shows up as rewrapped, overflowing titles in PowerPoint.
+export const PX_PER_INCH = 144;
+export const PT_PER_PX = 72 / PX_PER_INCH;
 const PPT_WIDTH = WIDTH_PX / PX_PER_INCH;
 const PPT_HEIGHT = HEIGHT_PX / PX_PER_INCH;
 // pptxgenjs 4's NodeNext declaration exposes its runtime default as a module namespace.
@@ -215,13 +219,17 @@ async function captureDeck(
 
 function addNativeText(slide: PptSlide, item: NativeTextMeasurement): void {
   if (!item.text.trim() || item.w < 2 || item.h < 2) return;
-  slide.addText(item.text, {
+  // A two-tone title arrives as runs so each keeps its own colour and weight in PowerPoint.
+  const body = item.runs?.length
+    ? item.runs.map((run) => ({ text: run.text, options: { color: hex(run.color), bold: run.bold } }))
+    : item.text;
+  slide.addText(body, {
     x: inches(item.x),
     y: Math.max(0, inches(item.y) - 0.01),
     w: inches(item.w),
     h: inches(item.h) + 0.04,
     fontFace: item.fontFamily,
-    fontSize: Math.max(6, item.fontSizePx * 0.75),
+    fontSize: Math.max(6, item.fontSizePx * PT_PER_PX),
     bold: item.fontWeight >= 600,
     color: hex(item.color),
     align: item.align,
@@ -229,8 +237,8 @@ function addNativeText(slide: PptSlide, item: NativeTextMeasurement): void {
     margin: 0,
     breakLine: false,
     fit: "shrink",
-    lineSpacing: Math.max(6, item.lineHeightPx * 0.75),
-    charSpacing: item.letterSpacingPx * 0.75,
+    lineSpacing: Math.max(6, item.lineHeightPx * PT_PER_PX),
+    charSpacing: item.letterSpacingPx * PT_PER_PX,
     objectName: `VibePPT · ${item.id}`,
   });
 }

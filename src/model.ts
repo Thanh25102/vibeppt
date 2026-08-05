@@ -153,6 +153,7 @@ export function validateDeck(value: unknown): LintIssue[] {
     }
     if (typeof section.id !== "string" || !section.id.trim()) error(`${sectionPath}.id`, "Section id is required.");
     if (typeof section.title !== "string" || !section.title.trim()) error(`${sectionPath}.title`, "Section title is required.");
+    if (section.timeBudget !== undefined && (typeof section.timeBudget !== "string" || section.timeBudget.length > 24)) error(`${sectionPath}.timeBudget`, "Time budget must be a short text label.");
     if (!Array.isArray(section.slides) || section.slides.length === 0) {
       error(`${sectionPath}.slides`, "Section must contain at least one slide.");
       return;
@@ -191,7 +192,25 @@ export function validateDeck(value: unknown): LintIssue[] {
           if (/^https?:\/\//i.test(slide.visual.src)) error(`${slidePath}.visual.src`, "Remote URLs are not allowed; download the asset into the project first.");
           if (slide.visual.fit !== undefined && slide.visual.fit !== "cover" && slide.visual.fit !== "contain") error(`${slidePath}.visual.fit`, "Visual fit must be cover or contain.");
           if (slide.visual.position !== undefined && (typeof slide.visual.position !== "string" || !/^(?:(?:left|center|right|top|bottom)|(?:\d{1,3}(?:\.\d+)?%))(?:\s+(?:(?:left|center|right|top|bottom)|(?:\d{1,3}(?:\.\d+)?%)))?$/.test(slide.visual.position))) error(`${slidePath}.visual.position`, "Visual position must use keywords or percentages.");
+          if (slide.visual.callouts !== undefined) {
+            if (!Array.isArray(slide.visual.callouts)) error(`${slidePath}.visual.callouts`, "Callouts must be an array.");
+            else {
+              if (slide.visual.callouts.length > 6) warning(`${slidePath}.visual.callouts`, "More than six callouts crowd the visual.");
+              slide.visual.callouts.forEach((callout, calloutIndex) => {
+                const calloutPath = `${slidePath}.visual.callouts[${calloutIndex}]`;
+                if (!isObject(callout) || typeof callout.title !== "string" || !callout.title.trim()) error(`${calloutPath}.title`, "Callout title is required.");
+                for (const axis of ["x", "y"] as const) {
+                  const value = isObject(callout) ? callout[axis] : undefined;
+                  if (typeof value !== "number" || !Number.isFinite(value) || value < 0 || value > 100) error(`${calloutPath}.${axis}`, "Callout x and y must be percentages from 0 to 100.");
+                }
+              });
+            }
+          }
         }
+      }
+      if (slide.titleAccent !== undefined) {
+        if (typeof slide.titleAccent !== "string" || !slide.titleAccent.trim()) error(`${slidePath}.titleAccent`, "Title accent must be text.");
+        else if (typeof slide.title === "string" && !slide.title.includes(slide.titleAccent)) error(`${slidePath}.titleAccent`, `Title accent must be a substring of the title: ${slide.titleAccent}`);
       }
       if (slide.chart !== undefined) {
         if (!isObject(slide.chart)) error(`${slidePath}.chart`, "Chart must be an object.");

@@ -40,12 +40,22 @@ export interface SlideItem {
   tone?: "accent" | "blue" | "green" | "amber" | "neutral";
 }
 
+export interface VisualCallout {
+  label?: string;
+  title: string;
+  body?: string;
+  /** Anchor position inside the visual box, in percent (0-100). */
+  x: number;
+  y: number;
+}
+
 export interface VisualSpec {
   src: string;
   alt: string;
   fit?: "cover" | "contain";
   position?: string;
   caption?: string;
+  callouts?: VisualCallout[];
 }
 
 export interface ChartSeries {
@@ -90,6 +100,8 @@ export interface SlideSpec {
   kind: SlideKind;
   layout?: string;
   title: string;
+  /** Substring of `title` that carries the accent colour, giving the two-tone headline. */
+  titleAccent?: string;
   eyebrow?: string;
   subtitle?: string;
   body?: string;
@@ -108,6 +120,8 @@ export interface SlideSpec {
 export interface DeckSection {
   id: string;
   title: string;
+  /** Presenter pacing shown in the slide chrome, e.g. "12-20 · 08'". */
+  timeBudget?: string;
   slides: SlideSpec[];
 }
 
@@ -284,15 +298,24 @@ export interface LintIssue {
 export interface FlatSlide {
   sectionId: string;
   sectionTitle: string;
+  sectionTimeBudget?: string;
   sectionIndex: number;
   slideIndex: number;
   slide: SlideSpec;
+}
+
+export interface NativeTextRun {
+  text: string;
+  color: string;
+  bold: boolean;
 }
 
 export interface NativeTextMeasurement {
   kind: "text";
   id: string;
   text: string;
+  /** Present only when the element mixes colours/weights, e.g. a two-tone title. */
+  runs?: NativeTextRun[];
   x: number;
   y: number;
   w: number;
@@ -341,6 +364,7 @@ export function flattenSlides(deck: DeckSpec): FlatSlide[] {
       result.push({
         sectionId: section.id,
         sectionTitle: section.title,
+        ...(section.timeBudget ? { sectionTimeBudget: section.timeBudget } : {}),
         sectionIndex,
         slideIndex,
         slide,

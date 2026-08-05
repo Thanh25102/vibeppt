@@ -4,8 +4,15 @@ import path from "node:path";
 import test from "node:test";
 import { renderDeckHtml } from "../dist/html.js";
 import { validateBrand, validateDeck } from "../dist/model.js";
+import { PT_PER_PX, PX_PER_INCH } from "../dist/pptx.js";
 
 const root = path.resolve(import.meta.dirname, "..");
+
+test("native text point sizes stay consistent with the px-per-inch canvas", () => {
+  assert.equal(PX_PER_INCH * PT_PER_PX, 72);
+  assert.equal(1920 * PT_PER_PX, 960);
+  assert.equal(116 * PT_PER_PX, 58);
+});
 
 test("sample deck validates and renders the native hybrid contract", async () => {
   const deck = JSON.parse(await readFile(path.join(root, "examples/northstar/deck.json"), "utf8"));
