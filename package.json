@@ -1,8 +1,16 @@
 {
   "name": "@vibeppt/cli",
-  "version": "0.2.0-alpha.1",
+  "version": "0.3.0-alpha.1",
   "private": true,
   "description": "Local-first Codex workflow and CLI for polished hybrid PowerPoint decks.",
+  "author": "Bùi Mạnh Thành",
+  "license": "SEE LICENSE IN LICENSE.md",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Thanh25102/vibeppt.git"
+  },
+  "homepage": "https://github.com/Thanh25102/vibeppt#readme",
+  "bugs": "https://github.com/Thanh25102/vibeppt/issues",
   "type": "module",
   "bin": {
     "vibeppt": "dist/cli.js"
@@ -12,6 +20,7 @@
     "presets",
     "templates",
     "studio",
+    "site",
     "scripts",
     "skill",
     "examples"
@@ -21,7 +30,10 @@
     "test": "npm run build && node --test test/*.test.mjs",
     "sample": "npm run build && node dist/cli.js build examples/northstar/deck.json --out .artifacts/northstar --force",
     "previews": "npm run build && node scripts/render-template-previews.mjs",
-    "studio": "npm run build && node dist/cli.js studio"
+    "studio": "npm run build && node dist/cli.js studio",
+    "site:build": "npm run build && node scripts/site.mjs build",
+    "site:serve": "node scripts/site.mjs serve",
+    "test:site": "npm run site:build && node test/site-browser.mjs"
   },
   "engines": {
     "node": ">=22"

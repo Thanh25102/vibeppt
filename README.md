@@ -1,6 +1,6 @@
 # VibePPT
 
-VibePPT is a local-first template studio, Codex workflow, and Node CLI for building visual Microsoft PowerPoint decks without reducing the result to a wall of marketing text.
+VibePPT is a source-available, local-first template studio, Codex workflow, and Node CLI for building visual Microsoft PowerPoint decks without reducing the result to a wall of marketing text.
 
 The editable source is `deck.json`. The same source produces:
 
@@ -19,9 +19,27 @@ The editable source is `deck.json`. The same source produces:
 
 The renderer can be developed on Linux or macOS, but final QA is explicitly Windows PowerPoint.
 
+## Public showcase
+
+The repository includes a static Vietnamese product site generated from the same eight template manifests used by Studio. It has shareable template pages, dark/light contact sheets, live HTML presentations, installation docs, and no upload or account surface.
+
+```bash
+npm run site:build
+npm run site:serve
+```
+
+The production image is published as `ghcr.io/thanh25102/vibeppt-site`. To run it on a server before a domain is available:
+
+```bash
+docker compose -f compose.site.yml pull
+docker compose -f compose.site.yml up -d
+```
+
+Open `http://SERVER_IP:8080`. Put an existing reverse proxy and TLS in front of container port `8080` when a domain is ready.
+
 ## Install for a Codex user
 
-Clone the private repository, then open PowerShell in it:
+Clone the repository, then open PowerShell in it:
 
 ```powershell
 git clone https://github.com/Thanh25102/vibeppt.git
@@ -107,7 +125,12 @@ output/final/
 npm install --ignore-scripts
 npm test
 npm run previews
+npm run test:site
 npm run sample
 ```
 
-The v0.2 ceiling is intentional: curated templates, guided local project creation, fixed renderer components, and PowerPoint desktop QA. Studio is a chooser and handoff surface, not a drag-and-drop editor. It does not include arbitrary HTML input, animation round-tripping, SmartArt preservation, collaboration, telemetry, or a hosted service.
+## License
+
+Copyright 2026 Bùi Mạnh Thành. VibePPT is source available under the [PolyForm Shield License 1.0.0](LICENSE.md). It is not OSI open source; review the license before redistributing VibePPT or using it to provide a competing product.
+
+The v0.3 ceiling is intentional: public static showcase, curated templates, guided local project creation, fixed renderer components, and PowerPoint desktop QA. Studio is a chooser and handoff surface, not a drag-and-drop editor. VibePPT does not include arbitrary HTML input, animation round-tripping, SmartArt preservation, collaboration, telemetry, accounts, file upload, or a hosted generation service.

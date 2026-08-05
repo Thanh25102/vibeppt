@@ -1,0 +1,9 @@
+.git
+.github
+.artifacts
+dist
+node_modules
+output
+site-dist
+*.pptx
+*.tgz
