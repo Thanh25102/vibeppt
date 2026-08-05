@@ -68,10 +68,10 @@ try {
   } | ConvertTo-Json -Depth 6 | Set-Content -Encoding UTF8 (Join-Path $outputPath "reference.json")
 }
 finally {
-  if ($presentation) { $presentation.Close() }
-  if ($powerPoint) { $powerPoint.Quit() }
-  if ($presentation) { [void][Runtime.InteropServices.Marshal]::ReleaseComObject($presentation) }
-  if ($powerPoint) { [void][Runtime.InteropServices.Marshal]::ReleaseComObject($powerPoint) }
+  if ($presentation) { try { $presentation.Close() } catch { } }
+  if ($powerPoint) { try { $powerPoint.Quit() } catch { } }
+  if ($presentation) { try { [void][Runtime.InteropServices.Marshal]::ReleaseComObject($presentation) } catch { } }
+  if ($powerPoint) { try { [void][Runtime.InteropServices.Marshal]::ReleaseComObject($powerPoint) } catch { } }
   [GC]::Collect()
   [GC]::WaitForPendingFinalizers()
 }

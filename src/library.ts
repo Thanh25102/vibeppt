@@ -39,6 +39,10 @@ function numericSort(left: string, right: string): number {
   return left.localeCompare(right, undefined, { numeric: true });
 }
 
+function portableRelative(root: string, target: string): string {
+  return path.relative(root, target).split(path.sep).join("/");
+}
+
 async function pptxFiles(directory: string): Promise<string[]> {
   const result: string[] = [];
   for (const entry of await readdir(directory, { withFileTypes: true })) {
@@ -80,7 +84,7 @@ async function inspectDeck(source: string, sourceRoot: string): Promise<{ deck: 
   const themeNames = names.filter((name) => /^ppt\/theme\/theme\d+\.xml$/.test(name));
   const themes = await Promise.all(themeNames.map((name) => zip.file(name)!.async("text")));
   const fonts = [...new Set(themes.flatMap((theme) => [...theme.matchAll(/typeface="([^"]*)"/g)].map((match) => decodeXml(match[1] ?? "")).filter(Boolean)))].sort();
-  const relative = path.relative(sourceRoot, source);
+  const relative = portableRelative(sourceRoot, source);
   const stableId = `${slugify(path.basename(source, path.extname(source)))}-${sha256(relative).slice(0, 8)}`;
   const stats: LibraryDeckStats = {
     charts: names.filter((name) => /^ppt\/charts\/chart\d+\.xml$/.test(name)).length,
@@ -199,9 +203,23 @@ export async function indexLibrary(options: IndexLibraryOptions): Promise<Librar
     try {
       const inspected = await inspectDeck(source, sourceRoot);
       const previous = existingBySource.get(path.resolve(source));
-      if (!options.force && previous?.sourceHash === inspected.deck.sourceHash && previous.sampleImages.length && await allExist(outDir, previous.sampleImages)) {
+      const wantsNativeSamples = !options.structuralOnly && process.platform === "win32";
+      const nativeSampleImages = inspected.deck.sampleSlides.map((index) => path.relative(outDir, path.join(outDir, "decks", inspected.deck.id, "samples", `slide-${String(index).padStart(3, "0")}.jpg`)).split(path.sep).join("/"));
+      const previousMatchesMode = !wantsNativeSamples || (
+        previous?.sampleSlides.length === inspected.deck.sampleSlides.length
+        && previous.sampleImages.length === inspected.deck.sampleSlides.length
+        && previous.sampleImages.every((image) => /\/slide-\d+\.jpg$/i.test(image))
+      );
+      if (!options.force && previous?.id === inspected.deck.id && previous.sourceHash === inspected.deck.sourceHash && previous.sampleImages.length && previousMatchesMode && await allExist(outDir, previous.sampleImages)) {
         decks.push(previous);
         previous.sampleImages.forEach((image, index) => sheetItems.push({ image: path.join(outDir, image), label: previous.name, caption: previous.sampleSlides[index] ? `Slide ${previous.sampleSlides[index]}` : previous.category }));
+        continue;
+      }
+      const nativeReference = path.relative(outDir, path.join(outDir, "decks", inspected.deck.id, "samples", "reference.json")).split(path.sep).join("/");
+      if (!options.force && wantsNativeSamples && nativeSampleImages.length && await allExist(outDir, [...nativeSampleImages, nativeReference])) {
+        const deck: LibraryDeck = { ...inspected.deck, sampleImages: nativeSampleImages, status: "ready" };
+        decks.push(deck);
+        nativeSampleImages.forEach((image, index) => sheetItems.push({ image: path.join(outDir, image), label: deck.name, caption: `Slide ${deck.sampleSlides[index]}` }));
         continue;
       }
       const samplesDir = path.join(outDir, "decks", inspected.deck.id, "samples");
@@ -223,7 +241,7 @@ export async function indexLibrary(options: IndexLibraryOptions): Promise<Librar
       decks.push(deck);
       sampleImages.forEach((image, index) => sheetItems.push({ image: path.join(outDir, image), label: deck.name, caption: deck.sampleSlides[index] ? `Slide ${deck.sampleSlides[index]}` : deck.category }));
     } catch (error) {
-      const relative = path.relative(sourceRoot, source);
+      const relative = portableRelative(sourceRoot, source);
       const themeHint = inferTheme(relative);
       decks.push({
         id: `${slugify(path.basename(source, path.extname(source)))}-${sha256(relative).slice(0, 8)}`,

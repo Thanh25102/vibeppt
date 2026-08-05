@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { mkdir, mkdtemp, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -15,13 +16,15 @@ test("library index reads PPTX structure without PowerPoint and preserves a stab
     const sources = path.join(temporary, "sources");
     const workspace = path.join(temporary, "workspace");
     await mkdir(sources);
+    const lightSources = path.join(sources, "Light");
+    await mkdir(lightSources);
     const PptxConstructor = pptxgen;
     const pptx = new PptxConstructor();
     for (let index = 1; index <= 3; index += 1) {
       const slide = pptx.addSlide();
       slide.addText(`Slide ${index}`, { x: 1, y: 1, w: 4, h: 1 });
     }
-    await pptx.writeFile({ fileName: path.join(sources, "Business_Light_v1.pptx") });
+    await pptx.writeFile({ fileName: path.join(lightSources, "Business_Light_v1.pptx") });
     const first = await indexLibrary({ sourceRoot: sources, outDir: workspace, structuralOnly: true, createSheets: false });
     assert.equal(first.decks.length, 1);
     assert.equal(first.decks[0].status, "ready");
@@ -29,6 +32,8 @@ test("library index reads PPTX structure without PowerPoint and preserves a stab
     assert.equal(first.decks[0].category, "Business");
     assert.equal(first.decks[0].themeHint, "light");
     assert.ok(first.decks[0].sourceHash.length === 64);
+    const portableHash = createHash("sha256").update("Light/Business_Light_v1.pptx").digest("hex").slice(0, 8);
+    assert.equal(first.decks[0].id, `business-light-v1-${portableHash}`);
     const second = await indexLibrary({ sourceRoot: sources, outDir: workspace, structuralOnly: true, createSheets: false });
     assert.equal(second.createdAt, first.createdAt);
     assert.equal(second.decks[0].id, first.decks[0].id);
