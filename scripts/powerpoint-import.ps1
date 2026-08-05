@@ -1,6 +1,10 @@
 param(
   [Parameter(Mandatory = $true)][string]$InputPptx,
-  [Parameter(Mandatory = $true)][string]$OutputDir
+  [Parameter(Mandatory = $true)][string]$OutputDir,
+  [string]$SlideIndices = "",
+  [ValidateSet("PNG", "JPG")][string]$Format = "PNG",
+  [ValidateRange(160, 3840)][int]$Width = 1920,
+  [ValidateRange(90, 2160)][int]$Height = 1080
 )
 
 $ErrorActionPreference = "Stop"
@@ -13,14 +17,18 @@ $presentation = $null
 try {
   $powerPoint = New-Object -ComObject PowerPoint.Application
   $presentation = $powerPoint.Presentations.Open($inputPath, $true, $false, $false)
-  $presentation.Export($outputPath, "PNG", 1920, 1080)
   $slides = @()
+  $indices = if ($SlideIndices) {
+    @($SlideIndices.Split(",") | ForEach-Object { [int]$_.Trim() } | Where-Object { $_ -ge 1 -and $_ -le $presentation.Slides.Count } | Select-Object -Unique)
+  } else {
+    @(1..$presentation.Slides.Count)
+  }
+  $extension = $Format.ToLowerInvariant()
 
-  for ($index = 1; $index -le $presentation.Slides.Count; $index++) {
+  foreach ($index in $indices) {
     $slide = $presentation.Slides.Item($index)
-    $imageName = "slide-{0:d3}.png" -f $index
-    $powerPointImage = Join-Path $outputPath ("Slide{0}.PNG" -f $index)
-    if (Test-Path $powerPointImage) { Move-Item -Force $powerPointImage (Join-Path $outputPath $imageName) }
+    $imageName = "slide-{0:d3}.{1}" -f $index, $extension
+    $slide.Export((Join-Path $outputPath $imageName), $Format, $Width, $Height)
 
     $text = @()
     foreach ($shape in $slide.Shapes) {
@@ -52,6 +60,9 @@ try {
     version = 1
     importedAt = [DateTime]::UtcNow.ToString("o")
     source = $inputPath
+    width = $Width
+    height = $Height
+    format = $Format
     instruction = "Use these slides as content and visual references. Rebuild the new deck from DeckSpec; do not edit this PPTX in place."
     slides = $slides
   } | ConvertTo-Json -Depth 6 | Set-Content -Encoding UTF8 (Join-Path $outputPath "reference.json")

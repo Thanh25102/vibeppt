@@ -57,7 +57,7 @@ The installer builds and links `vibeppt`, verifies PowerPoint, installs the `bea
 ## Visual workflow
 
 1. Open **VibePPT Studio** from the Start Menu.
-2. Browse eight original Sales and Marketing templates with light/dark contact sheets.
+2. Browse eight original Sales and Marketing templates plus any private Customer Kits, all with light/dark contact sheets.
 3. Pick a folder, enter a short brief, and optionally attach source files and a logo.
 4. Click **Open VS Code & copy prompt**.
 5. Open Codex, press `Ctrl+V`, and send.
@@ -91,15 +91,49 @@ vibeppt import-pptx .\sources\old-deck.pptx --out .\sources\old-deck --force
 
 PowerPoint renders reference images and extracts text/notes. Codex uses those materials to rebuild a new story; VibePPT does not perform fragile in-place edits.
 
+## Customer template workshop
+
+When a customer supplies a PPTX library, keep the originals private and build a visual index first:
+
+```powershell
+vibeppt library index .\customer-pptx --out .\customer-workshop
+vibeppt studio --workshop .\customer-workshop
+```
+
+The index reads every PPTX, records structure and fonts, samples slides through desktop PowerPoint when available, and generates browser-viewable contact sheets. Codex then shortlists a coherent visual grammar, selects twelve practical layout roles with two alternatives each, and rebuilds them with DeckSpec/CSS rather than copying customer assets. Structural-only indexing is available with `--structural-only`.
+
+On Windows, render only the shortlisted decks and final candidates at higher fidelity:
+
+```powershell
+vibeppt library render .\customer-workshop --shortlist .\customer-workshop\deck-shortlist.json
+vibeppt library render .\customer-workshop --selection .\customer-workshop\selection.json
+```
+
+The recommended first pilot uses twelve roles: cover, agenda, section, problem, metrics, process, timeline, comparison, matrix, chart, team, and closing. After the pilot, ask the customer for three completed decks they consider genuinely good; use those to refine the second version instead of guessing their taste from a large template dump.
+
+PPTX remains the primary source. PDF exports are useful only as visual comparison evidence for representative decks.
+
+## Private Customer Kits
+
+A kit packages rebuilt templates, brand profiles, and optional demo outputs without the raw customer library:
+
+```powershell
+vibeppt kit build .\kit-workspace --out .\customer.vibeppt-kit
+vibeppt kit install .\customer.vibeppt-kit
+vibeppt kit list
+```
+
+Studio also installs `.vibeppt-kit` files visually. Archives are checksum-verified, path-safe, size-limited, and restricted to template/brand/demo assets. Installed kits live under `%USERPROFILE%\.vibeppt` and remain local to that Windows account.
+
 ## Brand profiles
 
-Copy a preset folder, adjust `brand.json`, add a local logo if needed, then install it into a presentation project:
+Open **Thương hiệu** in Studio to adjust fonts, core colors, radius, light/dark logos, and advanced theme tokens against a live slide preview. Saved profiles are reusable across compatible templates. The CLI path remains available:
 
 ```powershell
 vibeppt brand add acme --from .\acme-brand --project .
 ```
 
-Each profile contains installed font family names and both light and dark color tokens. Brand source stays visible and local.
+Each profile contains installed font family names, both light and dark color tokens, and optional theme-specific logos. Brand source stays visible and local.
 
 ## Output layout
 
@@ -133,4 +167,4 @@ npm run sample
 
 Copyright 2026 Bùi Mạnh Thành. VibePPT is source available under the [PolyForm Shield License 1.0.0](LICENSE.md). It is not OSI open source; review the license before redistributing VibePPT or using it to provide a competing product.
 
-The v0.3 ceiling is intentional: public static showcase, curated templates, guided local project creation, fixed renderer components, and PowerPoint desktop QA. Studio is a chooser and handoff surface, not a drag-and-drop editor. VibePPT does not include arbitrary HTML input, animation round-tripping, SmartArt preservation, collaboration, telemetry, accounts, file upload, or a hosted generation service.
+The v0.4 ceiling is intentional: public static showcase, private Customer Kits, customer-library Workshop, guided brand profiles, fixed renderer components, and PowerPoint desktop QA. Studio is a chooser and handoff surface, not a drag-and-drop editor. VibePPT does not include arbitrary HTML input, animation round-tripping, SmartArt preservation, collaboration, telemetry, accounts, file upload, or a hosted generation service.

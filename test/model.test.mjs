@@ -44,3 +44,18 @@ test("lint rejects remote assets and malformed chart data", () => {
   assert.doesNotThrow(() => validateDeck(malformed));
   assert.ok(validateDeck(malformed).filter((issue) => issue.level === "error").length >= 3);
 });
+
+test("layout variants and theme-specific logos remain backward compatible", () => {
+  const deck = {
+    version: 1, meta: { title: "Layouts" }, brandProfile: "./brand.json",
+    sections: [{ id: "one", title: "One", slides: [{ id: "cover", kind: "hero", layout: "split-cover", title: "Cover" }] }],
+  };
+  assert.deepEqual(validateDeck(deck), []);
+  deck.sections[0].slides[0].layout = "Not valid";
+  assert.ok(validateDeck(deck).some((issue) => issue.path.endsWith("layout")));
+  const brand = {
+    version: 1, id: "logos", name: "Logos", fonts: { display: "Arial", body: "Arial" }, logos: { light: "logo-dark.svg", dark: "logo-light.svg" },
+    themes: Object.fromEntries(["light", "dark"].map((theme) => [theme, { bg: "#000000", bgDeep: "#000000", panel: "#000000", panelSoft: "#000000", ink: "#FFFFFF", muted: "#AAAAAA", line: "#333333", accent: "#FF0000", accent2: "#00FF00", accent3: "#0000FF", good: "#00FF00", warn: "#FFAA00" }])),
+  };
+  assert.deepEqual(validateBrand(brand), []);
+});

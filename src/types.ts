@@ -88,6 +88,7 @@ export interface DiagramSpec {
 export interface SlideSpec {
   id: string;
   kind: SlideKind;
+  layout?: string;
   title: string;
   eyebrow?: string;
   subtitle?: string;
@@ -126,6 +127,13 @@ export interface TemplateStoryStep {
   purpose: string;
 }
 
+export interface TemplateLayout {
+  id: string;
+  name: string;
+  kind: SlideKind;
+  purpose: string;
+}
+
 export interface TemplateProfile {
   version: 1;
   id: string;
@@ -140,6 +148,7 @@ export interface TemplateProfile {
   recipe: string;
   preview: Record<ThemeName, string>;
   storyRecipe: TemplateStoryStep[];
+  layouts?: TemplateLayout[];
 }
 
 export interface BrandTheme {
@@ -162,6 +171,7 @@ export interface BrandProfile {
   id: string;
   name: string;
   logo?: string;
+  logos?: Partial<Record<ThemeName, string>>;
   fonts: {
     display: string;
     body: string;
@@ -173,6 +183,96 @@ export interface BrandProfile {
     visualDirection?: string;
     imagePromptPrefix?: string;
   };
+}
+
+export interface LibraryDeckStats {
+  charts: number;
+  pictures: number;
+  shapes: number;
+  notes: number;
+  animatedSlides: number;
+  fonts: string[];
+}
+
+export interface LibraryDeck {
+  id: string;
+  name: string;
+  source: string;
+  sourceHash: string;
+  category: string;
+  themeHint?: ThemeName;
+  slideCount: number;
+  width: number;
+  height: number;
+  sampleSlides: number[];
+  sampleImages: string[];
+  stats: LibraryDeckStats;
+  status: "ready" | "error";
+  error?: string;
+}
+
+export interface LibraryCatalog {
+  version: 1;
+  id: string;
+  name: string;
+  sourceRoot: string;
+  createdAt: string;
+  updatedAt: string;
+  decks: LibraryDeck[];
+}
+
+export interface LibraryShortlist {
+  version: 1;
+  libraryId: string;
+  decks: string[];
+}
+
+export interface CurationScore {
+  hierarchy: number;
+  flexibility: number;
+  brandability: number;
+  editability: number;
+  themeCompatibility: number;
+  total: number;
+}
+
+export interface CurationCandidate {
+  deckId: string;
+  slideIndex: number;
+  image: string;
+  score: CurationScore;
+  rationale: string;
+}
+
+export interface CuratedLayout {
+  id: string;
+  name: string;
+  kind: SlideKind;
+  purpose: string;
+  selected: CurationCandidate;
+  alternatives: CurationCandidate[];
+}
+
+export interface CurationSelection {
+  version: 1;
+  libraryId: string;
+  updatedAt: string;
+  pack: { id: string; name: string; summary: string };
+  visualDirection: string;
+  layouts: CuratedLayout[];
+}
+
+export interface CustomerKitManifest {
+  version: 1;
+  id: string;
+  name: string;
+  customer: string;
+  createdAt: string;
+  minVibePptVersion: string;
+  templates: string[];
+  brands: string[];
+  demo?: { deck?: string; pptx?: string; contactSheet?: string };
+  files: Record<string, string>;
 }
 
 export interface LintIssue {

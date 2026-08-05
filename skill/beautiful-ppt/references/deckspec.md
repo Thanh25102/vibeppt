@@ -51,6 +51,12 @@
 
 Every slide requires `id`, `kind`, and `title`. Common optional fields are `eyebrow`, `subtitle`, `body`, `tags`, `items`, `visual`, `notes`, and `sourceRefs`.
 
+When the selected template declares `layouts`, a slide may set `layout` to one of those ids. Its `kind` must match the layout declaration:
+
+```json
+{ "id": "opening", "kind": "hero", "layout": "cover", "title": "One clear decision" }
+```
+
 ## Visuals
 
 ```json
@@ -120,3 +126,9 @@ vibeppt brand add customer --from .\customer-brand --project .
 ```
 
 Use installed Windows font family names. The `imagePromptPrefix` is guidance for the agent's image-generation tool; the CLI never stores or requests an API key.
+
+Use `logos.light` for a mark intended for a light slide and `logos.dark` for a mark intended for a dark slide. Legacy `logo` remains a fallback:
+
+```json
+"logos": { "light": "logo-color.svg", "dark": "logo-white.svg" }
+```

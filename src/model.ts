@@ -25,6 +25,10 @@ function isHex(value: unknown): value is string {
   return typeof value === "string" && /^#[0-9a-f]{6}$/i.test(value);
 }
 
+function isSlug(value: unknown): value is string {
+  return typeof value === "string" && /^[a-z0-9][a-z0-9-]*$/.test(value);
+}
+
 function isLocalReference(value: unknown): value is string {
   return typeof value === "string" && Boolean(value.trim()) && !/^(?:https?:)?\/\//i.test(value);
 }
@@ -81,14 +85,28 @@ export async function loadProject(deckPath: string, brandOverride?: string) {
       }
     }
   }
-  const brandLogo = isObject(brand) && typeof brand.logo === "string" ? brand.logo : undefined;
-  if (brandLogo && !(await stat(path.resolve(path.dirname(brandPath), brandLogo)).catch(() => null))?.isFile()) {
-    fileIssues.push({ level: "error", path: "brand.logo", message: `Asset not found: ${brandLogo}` });
+  const brandLogos = [
+    isObject(brand) && typeof brand.logo === "string" ? { pathName: "brand.logo", value: brand.logo } : undefined,
+    isObject(brand) && isObject(brand.logos) && typeof brand.logos.light === "string" ? { pathName: "brand.logos.light", value: brand.logos.light } : undefined,
+    isObject(brand) && isObject(brand.logos) && typeof brand.logos.dark === "string" ? { pathName: "brand.logos.dark", value: brand.logos.dark } : undefined,
+  ].filter((item): item is { pathName: string; value: string } => Boolean(item));
+  for (const item of brandLogos) {
+    const brandDirectory = path.dirname(brandPath);
+    const target = path.resolve(brandDirectory, item.value);
+    if (!isInside(brandDirectory, target) || !(await stat(target).catch(() => null))?.isFile()) {
+      fileIssues.push({ level: "error", path: item.pathName, message: `Asset not found or outside brand directory: ${item.value}` });
+    }
   }
   for (const [sectionIndex, section] of (Array.isArray(deck.sections) ? deck.sections : []).entries()) {
     if (!isObject(section) || !Array.isArray(section.slides)) continue;
     for (const [slideIndex, slide] of section.slides.entries()) {
-      if (!isObject(slide) || !isObject(slide.visual) || typeof slide.visual.src !== "string") continue;
+      if (!isObject(slide)) continue;
+      if (template && typeof slide.layout === "string") {
+        const declared = template.profile.layouts?.find((layout) => layout.id === slide.layout);
+        if (!declared) fileIssues.push({ level: "error", path: `sections[${sectionIndex}].slides[${slideIndex}].layout`, message: `Layout is not declared by template: ${slide.layout}` });
+        else if (declared.kind !== slide.kind) fileIssues.push({ level: "error", path: `sections[${sectionIndex}].slides[${slideIndex}].layout`, message: `Layout ${slide.layout} requires slide kind ${declared.kind}.` });
+      }
+      if (!isObject(slide.visual) || typeof slide.visual.src !== "string") continue;
       if (!/^https?:\/\//i.test(slide.visual.src) && !(await stat(path.resolve(deckDir, slide.visual.src)).catch(() => null))?.isFile()) {
         fileIssues.push({ level: "error", path: `sections[${sectionIndex}].slides[${slideIndex}].visual.src`, message: `Asset not found: ${slide.visual.src}` });
       }
@@ -151,6 +169,7 @@ export function validateDeck(value: unknown): LintIssue[] {
       else if (ids.has(slide.id)) error(`${slidePath}.id`, `Duplicate slide id: ${slide.id}`);
       else ids.add(slide.id);
       if (!SLIDE_KINDS.includes(slide.kind)) error(`${slidePath}.kind`, `Unsupported slide kind: ${String(slide.kind)}`);
+      if (slide.layout !== undefined && !isSlug(slide.layout)) error(`${slidePath}.layout`, "Layout must be a lowercase slug containing letters, numbers, and hyphens.");
       if (slide.renderMode !== undefined && !["auto", "native", "flatten"].includes(slide.renderMode)) error(`${slidePath}.renderMode`, "Render mode must be auto, native, or flatten.");
       if (typeof slide.title !== "string" || !slide.title.trim()) error(`${slidePath}.title`, "Slide title is required.");
       else if (slide.title.length > 96) warning(`${slidePath}.title`, "Title is longer than 96 characters; split or shorten it.");
@@ -236,6 +255,12 @@ export function validateBrand(value: unknown): LintIssue[] {
   if (typeof value.id !== "string" || !value.id.trim()) error("id", "Brand id is required.");
   if (typeof value.name !== "string" || !value.name.trim()) error("name", "Brand name is required.");
   if (value.logo !== undefined && typeof value.logo !== "string") error("logo", "Logo must be a local file path.");
+  if (value.logos !== undefined) {
+    if (!isObject(value.logos)) error("logos", "Theme logos must be an object.");
+    else for (const themeName of ["dark", "light"] as const) {
+      if (value.logos[themeName] !== undefined && !isLocalReference(value.logos[themeName])) error(`logos.${themeName}`, "Theme logo must be a local file path.");
+    }
+  }
   if (!isObject(value.fonts) || typeof value.fonts.display !== "string" || typeof value.fonts.body !== "string") error("fonts", "Display and body fonts are required.");
   if (!isObject(value.themes)) {
     error("themes", "Both light and dark themes are required.");
@@ -282,6 +307,24 @@ export function validateTemplate(value: unknown): LintIssue[] {
         error(`storyRecipe[${index}]`, "Each story step needs intent, purpose, and a supported slide kind.");
       }
     });
+  }
+  if (value.layouts !== undefined) {
+    if (!Array.isArray(value.layouts)) error("layouts", "Layouts must be an array.");
+    else {
+      const ids = new Set<string>();
+      value.layouts.forEach((layout, index) => {
+        if (!isObject(layout)) {
+          error(`layouts[${index}]`, "Layout must be an object.");
+          return;
+        }
+        if (!isSlug(layout.id)) error(`layouts[${index}].id`, "Layout id must be a lowercase slug.");
+        else if (ids.has(layout.id)) error(`layouts[${index}].id`, `Duplicate layout id: ${layout.id}`);
+        else ids.add(layout.id);
+        if (typeof layout.name !== "string" || !layout.name.trim()) error(`layouts[${index}].name`, "Layout name is required.");
+        if (!SLIDE_KINDS.includes(layout.kind as SlideSpec["kind"])) error(`layouts[${index}].kind`, "Layout kind is not supported.");
+        if (typeof layout.purpose !== "string" || !layout.purpose.trim()) error(`layouts[${index}].purpose`, "Layout purpose is required.");
+      });
+    }
   }
   return issues;
 }

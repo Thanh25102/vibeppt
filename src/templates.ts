@@ -3,6 +3,7 @@ import { homedir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { formatIssues, hasErrors, readJson, validateBrand, validateTemplate } from "./model.js";
+import { defaultUserDataRoot, installedBrandDirectories, installedTemplateDirectories } from "./kits.js";
 import type { BrandProfile, DeckSpec, TemplateProfile, ThemeName } from "./types.js";
 
 const packageRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -24,6 +25,24 @@ export interface CreateProjectOptions {
   logoPath?: string;
   sourcePaths?: string[];
   rootDirectory?: string;
+  dataRoot?: string;
+  brandId?: string;
+}
+
+export interface TemplateCatalogEntry {
+  profile: TemplateProfile;
+  directory: string;
+  origin: "built-in" | "customer-kit";
+  kitId?: string;
+  kitName?: string;
+}
+
+export interface BrandCatalogEntry {
+  profile: BrandProfile;
+  directory: string;
+  origin: "local" | "customer-kit";
+  kitId?: string;
+  kitName?: string;
 }
 
 export interface CreatedProject {
@@ -51,9 +70,8 @@ function validateBrief(brief: ProjectBrief): void {
   if (brief.language !== "vi" && brief.language !== "en") throw new Error("Language must be vi or en.");
 }
 
-async function loadTemplate(id: string, rootDirectory = packageRoot): Promise<{ profile: TemplateProfile; directory: string }> {
+async function loadTemplateDirectory(id: string, directory: string): Promise<{ profile: TemplateProfile; directory: string }> {
   assertTemplateId(id);
-  const directory = path.join(rootDirectory, "templates", id);
   const profile = await readJson<TemplateProfile>(path.join(directory, "template.json"));
   const issues = validateTemplate(profile);
   if (profile.id !== id) issues.push({ level: "error", path: "template.id", message: `Expected template id ${id}.` });
@@ -68,11 +86,46 @@ async function loadTemplate(id: string, rootDirectory = packageRoot): Promise<{ 
   return { profile, directory };
 }
 
+async function loadTemplate(id: string, rootDirectory = packageRoot, dataRoot = defaultUserDataRoot()): Promise<{ profile: TemplateProfile; directory: string }> {
+  const builtIn = path.join(rootDirectory, "templates", id);
+  if ((await stat(builtIn).catch(() => null))?.isDirectory()) return loadTemplateDirectory(id, builtIn);
+  const matches = (await installedTemplateDirectories(dataRoot)).filter((item) => path.basename(item.directory) === id);
+  if (matches.length !== 1) throw new Error(matches.length ? `Template id is ambiguous: ${id}` : `Unknown template: ${id}`);
+  return loadTemplateDirectory(id, matches[0]!.directory);
+}
+
 export async function listTemplates(rootDirectory = packageRoot): Promise<TemplateProfile[]> {
   const templatesRoot = path.join(rootDirectory, "templates");
   const entries = await readdir(templatesRoot, { withFileTypes: true });
-  const profiles = await Promise.all(entries.filter((entry) => entry.isDirectory()).map((entry) => loadTemplate(entry.name, rootDirectory).then((item) => item.profile)));
+  const profiles = await Promise.all(entries.filter((entry) => entry.isDirectory()).map((entry) => loadTemplateDirectory(entry.name, path.join(templatesRoot, entry.name)).then((item) => item.profile)));
   return profiles.sort((left, right) => left.name.localeCompare(right.name));
+}
+
+export async function listAvailableTemplates(rootDirectory = packageRoot, dataRoot = defaultUserDataRoot()): Promise<TemplateCatalogEntry[]> {
+  const builtInRoot = path.join(rootDirectory, "templates");
+  const builtIn = await readdir(builtInRoot, { withFileTypes: true });
+  const result: TemplateCatalogEntry[] = await Promise.all(builtIn.filter((entry) => entry.isDirectory()).map(async (entry) => ({
+    ...(await loadTemplateDirectory(entry.name, path.join(builtInRoot, entry.name))),
+    origin: "built-in" as const,
+  })));
+  for (const item of await installedTemplateDirectories(dataRoot)) {
+    const id = path.basename(item.directory);
+    if (result.some((entry) => entry.profile.id === id)) throw new Error(`Installed template conflicts with an existing id: ${id}`);
+    result.push({ ...(await loadTemplateDirectory(id, item.directory)), origin: "customer-kit", kitId: item.kit.id, kitName: item.kit.name });
+  }
+  return result.sort((left, right) => left.profile.name.localeCompare(right.profile.name));
+}
+
+export async function listAvailableBrands(dataRoot = defaultUserDataRoot()): Promise<BrandCatalogEntry[]> {
+  const result: BrandCatalogEntry[] = [];
+  for (const item of await installedBrandDirectories(dataRoot)) {
+    const profile = await readJson<BrandProfile>(path.join(item.directory, "brand.json"));
+    const issues = validateBrand(profile);
+    if (hasErrors(issues)) throw new Error(formatIssues(issues));
+    if (result.some((entry) => entry.profile.id === profile.id)) throw new Error(`Installed brand conflicts with an existing id: ${profile.id}`);
+    result.push({ profile, directory: item.directory, origin: item.kit ? "customer-kit" : "local", ...(item.kit ? { kitId: item.kit.id, kitName: item.kit.name } : {}) });
+  }
+  return result.sort((left, right) => left.profile.name.localeCompare(right.profile.name));
 }
 
 function uniqueName(name: string, used: Set<string>): string {
@@ -121,8 +174,13 @@ export async function createPresentationProject(options: CreateProjectOptions): 
     if (entries.length) throw new Error(`Project directory is not empty: ${target}`);
   }
 
-  const { profile, directory: templateDirectory } = await loadTemplate(options.templateId, options.rootDirectory ?? packageRoot);
-  const brandSource = path.resolve(templateDirectory, profile.brandProfile);
+  const { profile, directory: templateDirectory } = await loadTemplate(options.templateId, options.rootDirectory ?? packageRoot, options.dataRoot ?? defaultUserDataRoot());
+  let brandSource = path.resolve(templateDirectory, profile.brandProfile);
+  if (options.brandId) {
+    const selected = (await listAvailableBrands(options.dataRoot ?? defaultUserDataRoot())).find((item) => item.profile.id === options.brandId);
+    if (!selected) throw new Error(`Unknown brand profile: ${options.brandId}`);
+    brandSource = path.join(selected.directory, "brand.json");
+  }
   const brand = await readJson<BrandProfile>(brandSource);
   const brandIssues = validateBrand(brand);
   if (hasErrors(brandIssues)) throw new Error(formatIssues(brandIssues));
@@ -136,6 +194,18 @@ export async function createPresentationProject(options: CreateProjectOptions): 
   await cp(templateDirectory, path.join(target, "template"), { recursive: true });
 
   const projectBrand = structuredClone(brand);
+  const brandDirectory = path.dirname(brandSource);
+  const copyBrandAsset = async (reference: string, stem: string): Promise<string> => {
+    const source = path.resolve(brandDirectory, reference);
+    const relative = path.relative(brandDirectory, source);
+    if (relative.startsWith("..") || path.isAbsolute(relative) || !(await stat(source).catch(() => null))?.isFile()) throw new Error(`Brand asset not found or outside its profile: ${reference}`);
+    const filename = `${stem}${path.extname(source).toLowerCase()}`;
+    await copyFile(source, path.join(target, "brand", filename));
+    return filename;
+  };
+  if (projectBrand.logo) projectBrand.logo = await copyBrandAsset(projectBrand.logo, "logo");
+  if (projectBrand.logos?.light) projectBrand.logos.light = await copyBrandAsset(projectBrand.logos.light, "logo-light");
+  if (projectBrand.logos?.dark) projectBrand.logos.dark = await copyBrandAsset(projectBrand.logos.dark, "logo-dark");
   if (options.logoPath) {
     const logoInfo = await stat(options.logoPath).catch(() => null);
     if (!logoInfo?.isFile()) throw new Error(`Logo not found: ${options.logoPath}`);
@@ -144,6 +214,7 @@ export async function createPresentationProject(options: CreateProjectOptions): 
     const filename = `logo${extension}`;
     await copyFile(options.logoPath, path.join(target, "brand", filename));
     projectBrand.logo = filename;
+    delete projectBrand.logos;
   }
   await writeFile(path.join(target, "brand", "brand.json"), JSON.stringify(projectBrand, null, 2), "utf8");
 

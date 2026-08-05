@@ -6,7 +6,10 @@ import { loadProject } from "../dist/model.js";
 
 const root = path.resolve(import.meta.dirname, "..");
 const templateRoot = path.join(root, "templates");
-const ids = (await readdir(templateRoot, { withFileTypes: true })).filter((item) => item.isDirectory()).map((item) => item.name).sort();
+const requested = process.argv.slice(2).map((item) => path.resolve(item));
+const directories = requested.length
+  ? requested
+  : (await readdir(templateRoot, { withFileTypes: true })).filter((item) => item.isDirectory()).map((item) => path.join(templateRoot, item.name)).sort();
 const launch = process.platform === "win32" ? { channel: "msedge", headless: true } : { channel: "chrome", headless: true, args: ["--no-sandbox"] };
 const browser = await chromium.launch(launch);
 const page = await browser.newPage({ viewport: { width: 960, height: 540 } });
@@ -27,8 +30,8 @@ async function pngToWebp(buffer) {
 }
 
 try {
-  for (const id of ids) {
-    const directory = path.join(templateRoot, id);
+  for (const directory of directories) {
+    const id = path.basename(directory);
     const project = await loadProject(path.join(directory, "sample-deck.json"));
     if (!project.template) throw new Error(`Template did not load: ${id}`);
     for (const theme of ["dark", "light"]) {

@@ -94,8 +94,9 @@ export async function preparePreview(
   const assetMap = new Map<string, string>();
   await mkdir(assetDir, { recursive: true });
 
-  if (brand.logo) {
-    assetMap.set(`brand:${brand.logo}`, await copyAsset(path.resolve(path.dirname(brandPath), brand.logo), assetDir));
+  const logoReferences = new Set([brand.logo, brand.logos?.light, brand.logos?.dark].filter((value): value is string => Boolean(value)));
+  for (const reference of logoReferences) {
+    assetMap.set(`brand:${reference}`, await copyAsset(path.resolve(path.dirname(brandPath), reference), assetDir));
   }
   for (const { slide } of flattenSlides(deck)) {
     if (slide.visual?.src && !assetMap.has(slide.visual.src)) {

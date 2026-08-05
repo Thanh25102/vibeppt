@@ -14,6 +14,8 @@
     </a>
     <div class="top-actions">
       <span class="local-badge"><i></i> Local only</span>
+      <button class="ghost-button" id="brandButton" type="button">Thương hiệu</button>
+      <button class="ghost-button" id="installKitButton" type="button">Cài Customer Kit</button>
       <button class="ghost-button" id="quitButton" type="button">Thoát Studio</button>
     </div>
   </header>
@@ -37,6 +39,19 @@
       <div class="template-grid" id="templateGrid" aria-live="polite"></div>
     </section>
 
+    <section class="screen is-hidden" id="workshopScreen">
+      <div class="hero-copy workshop-hero">
+        <p class="eyebrow">Customer Template Workshop</p>
+        <h1 id="workshopTitle">Kho tham chiếu.</h1>
+        <p id="workshopSummary"></p>
+      </div>
+      <div class="workshop-actions">
+        <button class="primary-button" id="openWorkshop" type="button">Mở Codex để tự tuyển <span>↗</span></button>
+        <button class="ghost-button is-hidden" id="saveSelection" type="button">Lưu lựa chọn override</button>
+      </div>
+      <div class="workshop-grid" id="workshopGrid"></div>
+    </section>
+
     <section class="screen is-hidden" id="briefScreen">
       <button class="back-button" id="backToGallery" type="button">← Quay lại gallery</button>
       <div class="brief-layout">
@@ -54,6 +69,7 @@
             <label class="field field-wide"><span>Người xem</span><input name="audience" required maxlength="180" placeholder="Trưởng phòng kinh doanh và khách hàng tiềm năng"></label>
             <label class="field"><span>Thời lượng</span><div class="suffix-input"><input name="durationMinutes" type="number" min="5" max="120" value="25" required><b>phút</b></div></label>
             <label class="field"><span>Ngôn ngữ</span><select name="language"><option value="vi">Tiếng Việt</option><option value="en">English</option></select></label>
+            <label class="field field-wide"><span>Brand profile</span><select name="brandId" id="brandSelect"><option value="">Mặc định của template</option></select></label>
           </div>
 
           <div class="picker-grid">
@@ -66,7 +82,7 @@
               <button type="button" id="pickSources">Chọn file</button>
             </article>
             <article class="picker-card">
-              <span class="picker-number">C</span><div><h3>Logo</h3><p id="logoLabel">Tùy chọn · giữ palette của template</p></div>
+              <span class="picker-number">C</span><div><h3>Logo override</h3><p id="logoLabel">Tùy chọn · dùng một logo cho cả hai theme</p></div>
               <button type="button" id="pickLogo">Chọn logo</button>
             </article>
           </div>
@@ -101,6 +117,45 @@
       <div class="story-flow" id="storyFlow"></div>
       <button class="primary-button" id="useTemplate" type="button">Dùng template này <span>→</span></button>
     </div>
+  </dialog>
+
+  <dialog class="brand-dialog" id="brandDialog">
+    <button class="dialog-close" id="closeBrand" aria-label="Đóng brand editor">×</button>
+    <form id="brandForm" class="brand-editor">
+      <section class="brand-controls">
+        <p class="eyebrow">Brand profile editor</p>
+        <h2>Đổi brand.<br>Giữ nguyên layout.</h2>
+        <div class="field-grid compact-fields">
+          <label class="field"><span>Template để preview</span><select id="brandTemplate"></select></label>
+          <label class="field"><span>Theme preview</span><select id="brandTheme"><option value="light">Sáng</option><option value="dark">Tối</option></select></label>
+          <label class="field"><span>Profile ID</span><input id="brandProfileId" required pattern="[a-z0-9][a-z0-9-]*" placeholder="customer-brand"></label>
+          <label class="field"><span>Tên thương hiệu</span><input id="brandName" required maxlength="80"></label>
+          <label class="field"><span>Display font</span><input id="brandDisplayFont" list="fontList" required></label>
+          <label class="field"><span>Body font</span><input id="brandBodyFont" list="fontList" required></label>
+          <label class="field"><span>Fallback font</span><input id="brandFallbackFont" list="fontList" value="Arial"></label>
+          <label class="field"><span>Bo góc</span><input id="brandRadius" type="number" min="4" max="40"></label>
+          <label class="field color-field"><span>Màu chính</span><input id="brandAccent" type="color"></label>
+          <label class="field color-field"><span>Màu phụ</span><input id="brandAccent2" type="color"></label>
+          <label class="field color-field"><span>Màu nhấn</span><input id="brandAccent3" type="color"></label>
+        </div>
+        <datalist id="fontList"></datalist>
+        <div class="logo-row">
+          <button class="ghost-button" id="pickBrandLogoLight" type="button">Logo nền sáng</button><span id="brandLogoLightLabel">Chưa chọn</span>
+          <button class="ghost-button" id="pickBrandLogoDark" type="button">Logo nền tối</button><span id="brandLogoDarkLabel">Chưa chọn</span>
+        </div>
+        <details class="advanced-brand">
+          <summary>Token nâng cao</summary>
+          <div id="advancedTokens"></div>
+          <label class="field"><span>Hướng hình ảnh</span><textarea id="brandVisualDirection" rows="2"></textarea></label>
+          <label class="field"><span>Image prompt prefix</span><textarea id="brandImagePrompt" rows="2"></textarea></label>
+        </details>
+        <div class="brand-save-row">
+          <label><input type="checkbox" id="brandForce"> Cập nhật profile cùng ID</label>
+          <button class="primary-button" type="submit">Lưu brand profile <span>→</span></button>
+        </div>
+      </section>
+      <section class="brand-preview-panel"><iframe id="brandPreview" title="Brand preview"></iframe></section>
+    </form>
   </dialog>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>

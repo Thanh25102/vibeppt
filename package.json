@@ -1,6 +1,6 @@
 {
   "name": "@vibeppt/cli",
-  "version": "0.3.0-alpha.1",
+  "version": "0.4.0-alpha.1",
   "private": true,
   "description": "Local-first Codex workflow and CLI for polished hybrid PowerPoint decks.",
   "author": "Bùi Mạnh Thành",

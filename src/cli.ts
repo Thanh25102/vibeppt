@@ -9,6 +9,8 @@ import { formatIssues, hasErrors, loadProject, readJson, validateBrand, type Loa
 import { inspectPptx, writeQaReport } from "./qa.js";
 import { startStudio } from "./studio.js";
 import { createPresentationProject } from "./templates.js";
+import { indexLibrary, renderLibrarySelection, renderLibraryShortlist } from "./library.js";
+import { buildCustomerKit, installCustomerKit, listInstalledKits } from "./kits.js";
 import type { BrandProfile, DeckSpec, ThemeName } from "./types.js";
 
 const packageRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -117,6 +119,14 @@ async function sourceBundle(deck: DeckSpec, brand: BrandProfile, outDir: string,
   if (bundledBrand.logo) {
     const mapped = assetMap.get(`brand:${bundledBrand.logo}`) ?? assetMap.get(bundledBrand.logo);
     if (mapped) bundledBrand.logo = `./${mapped}`;
+  }
+  if (bundledBrand.logos) {
+    for (const theme of ["light", "dark"] as const) {
+      const reference = bundledBrand.logos[theme];
+      if (!reference) continue;
+      const mapped = assetMap.get(`brand:${reference}`) ?? assetMap.get(reference);
+      if (mapped) bundledBrand.logos[theme] = `./${mapped}`;
+    }
   }
   const previewAssets = path.join(outDir, "preview", "assets");
   if (await exists(previewAssets)) await cp(previewAssets, sourceAssetDir, { recursive: true });
@@ -277,8 +287,66 @@ async function commandQa(args: ParsedArgs): Promise<void> {
   if (!report.ok) process.exitCode = 1;
 }
 
+async function commandLibrary(args: ParsedArgs): Promise<void> {
+  const action = args.positionals[1];
+  if (action === "index") {
+    const sourceRoot = path.resolve(required(args.positionals[2], "Usage: vibeppt library index <pptx-folder> --out <workspace>"));
+    const outDir = path.resolve(required(flag(args, "out"), "--out <workspace> is required."));
+    const id = flag(args, "id");
+    const name = flag(args, "name");
+    const catalog = await indexLibrary({
+      sourceRoot,
+      outDir,
+      ...(id ? { id } : {}),
+      ...(name ? { name } : {}),
+      force: args.flags.has("force"),
+      structuralOnly: args.flags.has("structural-only"),
+    });
+    console.log(`Library: ${catalog.decks.filter((deck) => deck.status === "ready").length}/${catalog.decks.length} decks ready`);
+    console.log(`Workspace: ${outDir}`);
+    return;
+  }
+  if (action === "render") {
+    const workspace = path.resolve(required(args.positionals[2], "Usage: vibeppt library render <workspace> --shortlist <json> | --selection <json>"));
+    const shortlist = flag(args, "shortlist");
+    const selection = flag(args, "selection");
+    if (Boolean(shortlist) === Boolean(selection)) throw new Error("Pass exactly one of --shortlist <json> or --selection <json>.");
+    const options = { workspace, force: args.flags.has("force") };
+    if (shortlist) await renderLibraryShortlist(path.resolve(shortlist), options);
+    else await renderLibrarySelection(path.resolve(selection!), options);
+    console.log(`Library render complete: ${workspace}`);
+    return;
+  }
+  throw new Error("Usage: vibeppt library index <pptx-folder> --out <workspace> | vibeppt library render <workspace> --shortlist <json> | --selection <json>");
+}
+
+async function commandKit(args: ParsedArgs): Promise<void> {
+  const action = args.positionals[1];
+  if (action === "build") {
+    const workspace = path.resolve(required(args.positionals[2], "Usage: vibeppt kit build <workspace> --out <customer.vibeppt-kit>"));
+    const output = path.resolve(required(flag(args, "out"), "--out <customer.vibeppt-kit> is required."));
+    const manifest = await buildCustomerKit(workspace, output, args.flags.has("force"));
+    console.log(`Customer Kit: ${manifest.name} (${manifest.id})`);
+    console.log(`File: ${output}`);
+    return;
+  }
+  if (action === "install") {
+    const input = path.resolve(required(args.positionals[2], "Usage: vibeppt kit install <customer.vibeppt-kit>"));
+    const manifest = await installCustomerKit(input, { force: args.flags.has("force") });
+    console.log(`Installed Customer Kit: ${manifest.name} (${manifest.id})`);
+    return;
+  }
+  if (action === "list") {
+    const kits = await listInstalledKits();
+    if (!kits.length) console.log("No Customer Kits installed.");
+    else kits.forEach((kit) => console.log(`${kit.id}\t${kit.name}\t${kit.customer}`));
+    return;
+  }
+  throw new Error("Usage: vibeppt kit build <workspace> --out <file> | vibeppt kit install <file> | vibeppt kit list");
+}
+
 async function commandStudio(args: ParsedArgs): Promise<void> {
-  await startStudio({ openBrowser: !args.flags.has("no-open") });
+  await startStudio({ openBrowser: !args.flags.has("no-open"), ...(flag(args, "workshop") ? { workshop: path.resolve(flag(args, "workshop")!) } : {}) });
 }
 
 function help(): void {
@@ -289,6 +357,11 @@ Commands:
   vibeppt init <dir> [--template id] [--preset cinematic|editorial|corporate]
   vibeppt brand add <id> --from <dir> [--project .]
   vibeppt import-pptx <file.pptx> --out <dir>
+  vibeppt library index <pptx-folder> --out <workspace>
+  vibeppt library render <workspace> --shortlist <json> | --selection <json>
+  vibeppt kit build <workspace> --out <customer.vibeppt-kit>
+  vibeppt kit install <customer.vibeppt-kit>
+  vibeppt kit list
   vibeppt lint <deck.json>
   vibeppt preview <deck.json> [--theme dark|light] [--section id] [--out dir]
   vibeppt build <deck.json> [--mode hybrid|pixel] [--scale 1..3] [--out dir]
@@ -304,6 +377,8 @@ async function main(): Promise<void> {
     case "init": await commandInit(args); break;
     case "brand": await commandBrand(args); break;
     case "import-pptx": await commandImport(args); break;
+    case "library": await commandLibrary(args); break;
+    case "kit": await commandKit(args); break;
     case "lint": await commandLint(args); break;
     case "preview": await commandPreview(args); break;
     case "build": await commandBuild(args); break;

@@ -80,6 +80,41 @@ test("project creation copies the selected pack, brief, logo, and sources withou
   }
 });
 
+test("project creation keeps light and dark logos separate and inside the brand profile", async () => {
+  const temporary = await mkdtemp(path.join(tmpdir(), "vibeppt-theme-logo-test-"));
+  try {
+    const dataRoot = path.join(temporary, "data");
+    const brandDir = path.join(dataRoot, "brands", "customer-brand");
+    await Promise.all([mkdir(path.join(brandDir, "light"), { recursive: true }), mkdir(path.join(brandDir, "dark"), { recursive: true })]);
+    await Promise.all([
+      writeFile(path.join(brandDir, "light", "logo.svg"), "light", "utf8"),
+      writeFile(path.join(brandDir, "dark", "logo.svg"), "dark", "utf8"),
+      writeFile(path.join(brandDir, "brand.json"), JSON.stringify({
+        version: 1, id: "customer-brand", name: "Customer", fonts: { display: "Arial", body: "Arial" },
+        logos: { light: "light/logo.svg", dark: "dark/logo.svg" },
+        themes: Object.fromEntries(["light", "dark"].map((theme) => [theme, { bg: "#000000", bgDeep: "#000000", panel: "#000000", panelSoft: "#000000", ink: "#FFFFFF", muted: "#AAAAAA", line: "#333333", accent: "#FF0000", accent2: "#00FF00", accent3: "#0000FF", good: "#00FF00", warn: "#FFAA00" }])),
+      }), "utf8"),
+    ]);
+    const target = path.join(temporary, "project");
+    await createPresentationProject({
+      targetDirectory: target, templateId: "launch-signal", theme: "light", brandId: "customer-brand", dataRoot, rootDirectory: root,
+      brief: { projectName: "Brand", title: "Brand", goal: "Verify logos", audience: "Team", durationMinutes: 10, language: "en" },
+    });
+    const profile = JSON.parse(await readFile(path.join(target, "brand", "brand.json"), "utf8"));
+    assert.deepEqual(profile.logos, { light: "logo-light.svg", dark: "logo-dark.svg" });
+    assert.equal(await readFile(path.join(target, "brand", "logo-light.svg"), "utf8"), "light");
+    assert.equal(await readFile(path.join(target, "brand", "logo-dark.svg"), "utf8"), "dark");
+    profile.logos.light = "../outside.svg";
+    await writeFile(path.join(brandDir, "brand.json"), JSON.stringify(profile), "utf8");
+    await assert.rejects(() => createPresentationProject({
+      targetDirectory: path.join(temporary, "unsafe"), templateId: "launch-signal", theme: "light", brandId: "customer-brand", dataRoot, rootDirectory: root,
+      brief: { projectName: "Unsafe", title: "Unsafe", goal: "Reject path", audience: "Team", durationMinutes: 10, language: "en" },
+    }), /outside its profile/);
+  } finally {
+    await rm(temporary, { recursive: true, force: true });
+  }
+});
+
 test("template validation rejects remote and incomplete packs", () => {
   const issues = validateTemplate({
     version: 1, id: "bad", name: "Bad", summary: "Bad", categories: ["pitch"], moods: ["bad"], defaultTheme: "dark",

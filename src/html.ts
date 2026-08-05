@@ -31,8 +31,9 @@ function nativeText(
   return `<${tag} class="${className}" data-ppt-native="text" data-ppt-id="${escapeHtml(id)}" data-ppt-valign="${valign}">${escapeHtml(text)}</${tag}>`;
 }
 
-function renderChrome(flat: FlatSlide, total: number, brand: BrandProfile, assetMap: Map<string, string>): string {
-  const logo = brand.logo ? assetMap.get(`brand:${brand.logo}`) ?? assetMap.get(brand.logo) : undefined;
+function renderChrome(flat: FlatSlide, total: number, brand: BrandProfile, theme: ThemeName, assetMap: Map<string, string>): string {
+  const reference = brand.logos?.[theme] ?? brand.logo;
+  const logo = reference ? assetMap.get(`brand:${reference}`) ?? assetMap.get(reference) : undefined;
   const mark = logo
     ? `<img src="${escapeHtml(logo)}" alt="${escapeHtml(brand.name)}">`
     : `<span class="vp-wordmark">${escapeHtml(brand.name)}</span>`;
@@ -216,10 +217,11 @@ function renderSlideBody(slide: SlideSpec, assetMap: Map<string, string>): strin
   }
 }
 
-function renderSlide(flat: FlatSlide, total: number, brand: BrandProfile, assetMap: Map<string, string>): string {
+function renderSlide(flat: FlatSlide, total: number, brand: BrandProfile, theme: ThemeName, assetMap: Map<string, string>): string {
   const slide = flat.slide;
-  return `<section class="vp-slide vp-kind-${slide.kind}${flat.slideIndex === 0 ? " is-active" : ""}" data-slide-index="${flat.slideIndex}" data-slide-id="${escapeHtml(slide.id)}" aria-label="Slide ${flat.slideIndex + 1}: ${escapeHtml(slide.title)}">
-    ${renderChrome(flat, total, brand, assetMap)}
+  const layout = slide.layout ? ` vp-layout-${slide.layout}` : "";
+  return `<section class="vp-slide vp-kind-${slide.kind}${layout}${flat.slideIndex === 0 ? " is-active" : ""}" data-slide-index="${flat.slideIndex}" data-slide-id="${escapeHtml(slide.id)}"${slide.layout ? ` data-layout-id="${escapeHtml(slide.layout)}"` : ""} aria-label="Slide ${flat.slideIndex + 1}: ${escapeHtml(slide.title)}">
+    ${renderChrome(flat, total, brand, theme, assetMap)}
     <main class="vp-content">${renderSlideBody(slide, assetMap)}</main>
     <div class="vp-accent-line"></div>
     ${renderNotes(slide)}
@@ -342,7 +344,7 @@ export function renderDeckHtml(deck: DeckSpec, brand: BrandProfile, options: Htm
   return `<!doctype html>
 <html lang="${escapeHtml(deck.meta.language ?? "en")}" data-template-id="${escapeHtml(templateId)}" style="${escapeHtml(themeCss(theme, brand))}">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(deck.meta.title)}</title><style>${CSS}.vp-visual-generated{position:absolute}html.vp-export-background [data-ppt-native="text"]::before,html.vp-export-background [data-ppt-native="text"]::after{visibility:visible!important}html.vp-export-background .vp-eyebrow::before{background:var(--accent)!important}${options.templateCss ?? ""}</style></head>
-<body class="vp-template-${escapeHtml(templateId)}"><div class="vp-deck">${slides.map((flat) => renderSlide(flat, slides.length, brand, assetMap)).join("\n")}</div>
+<body class="vp-template-${escapeHtml(templateId)}"><div class="vp-deck">${slides.map((flat) => renderSlide(flat, slides.length, brand, themeName, assetMap)).join("\n")}</div>
 <nav class="vp-controls" aria-label="Presentation controls"><button data-prev title="Previous">←</button><span data-counter>01 / ${String(slides.length).padStart(2, "0")}</span><button data-next title="Next">→</button><button data-notes title="Notes">▤</button><button data-fullscreen title="Fullscreen">⛶</button></nav>
 <script>${SCRIPT}</script></body></html>`;
 }
