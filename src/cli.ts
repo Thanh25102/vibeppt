@@ -11,6 +11,7 @@ import { startStudio } from "./studio.js";
 import { createPresentationProject } from "./templates.js";
 import { indexLibrary, renderLibrarySelection, renderLibraryShortlist } from "./library.js";
 import { buildCustomerKit, installCustomerKit, listInstalledKits } from "./kits.js";
+import { formatIntake, inspectIntake } from "./intake.js";
 import type { BrandProfile, DeckSpec, ThemeName } from "./types.js";
 
 const packageRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -357,6 +358,17 @@ async function commandKit(args: ParsedArgs): Promise<void> {
   throw new Error("Usage: vibeppt kit build <workspace> --out <file> | vibeppt kit install <file> | vibeppt kit list");
 }
 
+async function commandIntake(args: ParsedArgs): Promise<void> {
+  const root = path.resolve(required(args.positionals[1], "Usage: vibeppt intake <folder> [--out intake.json]"));
+  if (!(await exists(root))) throw new Error(`Intake folder not found: ${root}`);
+  const report = await inspectIntake(root);
+  const outputPath = path.resolve(flag(args, "out") ?? path.join(root, "intake.json"));
+  await writeFile(outputPath, JSON.stringify(report, null, 2), "utf8");
+  console.log(formatIntake(report));
+  console.log(`Report: ${outputPath}`);
+  if (!report.ready) process.exitCode = 1;
+}
+
 async function commandStudio(args: ParsedArgs): Promise<void> {
   await startStudio({ openBrowser: !args.flags.has("no-open"), ...(flag(args, "workshop") ? { workshop: path.resolve(flag(args, "workshop")!) } : {}) });
 }
@@ -369,6 +381,7 @@ Commands:
   vibeppt init <dir> [--template id] [--preset cinematic|editorial|corporate]
   vibeppt brand add <id> --from <dir> [--project .]
   vibeppt import-pptx <file.pptx> --out <dir>
+  vibeppt intake <folder>
   vibeppt library index <pptx-folder> --out <workspace>
   vibeppt library render <workspace> --shortlist <json> | --selection <json>
   vibeppt kit build <workspace> --out <customer.vibeppt-kit>
@@ -389,6 +402,7 @@ async function main(): Promise<void> {
     case "init": await commandInit(args); break;
     case "brand": await commandBrand(args); break;
     case "import-pptx": await commandImport(args); break;
+    case "intake": await commandIntake(args); break;
     case "library": await commandLibrary(args); break;
     case "kit": await commandKit(args); break;
     case "lint": await commandLint(args); break;

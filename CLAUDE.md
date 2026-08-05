@@ -10,12 +10,13 @@ modules, no framework.
 ## Commands
 
 ```powershell
-npm test          # tsc build + node --test test/*.test.mjs  (13 tests)
-npm run build     # tsc only -> dist/
-npm run previews  # regenerate template preview webp
-npm run sample    # build examples/northstar
-npm run test:site # static site build + browser check
-vibeppt help      # CLI surface
+npm test            # tsc build + node --test test/*.test.mjs
+npm run build       # tsc only -> dist/
+npm run test:visual # build golden decks, require PowerPoint to fit every text box (Windows)
+npm run previews    # regenerate template preview webp
+npm run sample      # build examples/northstar
+npm run test:site   # static site build + browser check
+vibeppt help        # CLI surface
 ```
 
 `vibeppt` is linked globally (`C:\Program Files\nodejs\vibeppt.ps1`) and runs `dist/cli.js`,
@@ -70,6 +71,26 @@ PowerPoint 16.0 build `16.0.20131.20152`, Edge 151, Chrome 151, Node v22.21.1.
   `sampleSlides` — that is the Linux/CI mode and produces a *different* catalog shape.
 - COM cleanup in `scripts/powerpoint-*.ps1` is wrapped in `try/catch` because
   `Presentations.Open` can leave a half-dead COM object that throws on `Close()`.
+
+### The quality gate
+
+`vibeppt qa <pptx> --powerpoint` reads back the geometry PowerPoint actually laid out — shape
+positions plus `TextFrame2.TextRange.BoundWidth/BoundHeight` — and fails on text that overflows
+its box or an object off the slide. `addNativeText` stamps every shape with `objectName`
+(`VibePPT · <slide-id>`), which is what lets a finding name the DeckSpec field to fix.
+
+This exists because structural QA is not enough: a 1.5x point-size error and a double-drawn
+accent run both reported `PASS`. Thresholds in `src/qa.ts` are calibrated against known-good
+decks, not guessed. `npm run test:visual` runs the gate over the golden decks.
+
+Pixel comparison between the HTML and PowerPoint renders was tried and **rejected on
+measurement** — baseline rasterisation noise (5.7%) exceeded the signal from a real defect
+(4.6%), and a tiled variant inverted the ranking. Do not reintroduce it without first proving on
+a known-bad build that it separates.
+
+Windows PowerShell writes UTF-8 **with a BOM**, which `JSON.parse` rejects. Both PowerShell
+scripts now write without one and `readJson` strips it defensively; if you add a script that
+emits JSON, do the same.
 
 ### Deck id stability
 

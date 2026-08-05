@@ -9,7 +9,7 @@ Turn source material into a coherent visual story, then use the local `vibeppt` 
 
 ## Workflow
 
-1. Inspect every supplied source before proposing the story. Recover the audience, decision, duration, facts, required claims, screenshots, and brand material. Do not make the user restate information already present in files.
+1. Inspect every supplied source before proposing the story. Recover the audience, decision, duration, facts, required claims, screenshots, and brand material. Do not make the user restate information already present in files. When the customer supplies a folder of material, follow [references/intake.md](references/intake.md) and run `vibeppt intake` before authoring; never invent what the intake is missing.
 2. If the source includes a PPTX on Windows, run `vibeppt import-pptx source.pptx --out sources/reference --force`, then inspect `reference.json` and the rendered slide images.
    If the request is to turn a customer PPTX library into a reusable private template system, stop this deck workflow and follow [references/curation.md](references/curation.md) end to end. Make the shortlist and layout decisions yourself unless the user explicitly asks to approve them.
 3. Choose one narrative spine. Split large decks into sections of 8–15 slides so each section can be reviewed independently. Keep factual claims traceable in `sourceRefs` or speaker notes.
@@ -23,13 +23,13 @@ Turn source material into a coherent visual story, then use the local `vibeppt` 
    vibeppt preview deck.json --section product --theme dark --out output/product-preview --force
    ```
 
-8. Build each section, inspect its contact sheet at full size, and fix hierarchy, density, wording, overflow, weak repetition, and unsupported claims before continuing:
+8. Build each section, then review your own output against [references/visual-review.md](references/visual-review.md) and fix hierarchy, density, wording, overflow, weak repetition, and unsupported claims before continuing:
 
    ```powershell
    vibeppt build deck.json --section product --mode hybrid --out output/product --force
    ```
 
-9. Build the complete deck only after the sections hold together. Run `vibeppt qa output/final/deck.pptx`; on Windows this also renders through desktop PowerPoint. Read [references/powerpoint-qa.md](references/powerpoint-qa.md) for the acceptance gate.
+9. Build the complete deck only after the sections hold together. Run `vibeppt qa output/final/deck.pptx`; on Windows this also renders through desktop PowerPoint and fails on text that overflows its box. Read [references/visual-review.md](references/visual-review.md) and [references/powerpoint-qa.md](references/powerpoint-qa.md) for the acceptance gate.
 10. Deliver the PPTX, `preview/index.html`, `contact-sheet.png`, `qa.json`, and the `source/` bundle. Report any font, PowerPoint, external-source, or visual assumption that was not actually verified.
 
 ## Visual standard
