@@ -1,35 +1,13 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { chromium, type Browser, type LaunchOptions } from "playwright";
+import { launchBrowser } from "./browser.js";
 import { escapeHtml } from "./model.js";
 
 export interface ContactSheetItem {
   image: string;
   label: string;
   caption?: string;
-}
-
-async function launchBrowser(): Promise<{ browser: Browser; engine: string }> {
-  const attempts: Array<{ engine: string; options: LaunchOptions }> = process.platform === "win32"
-    ? [
-        { engine: "Microsoft Edge", options: { channel: "msedge", headless: true } },
-        { engine: "Google Chrome", options: { channel: "chrome", headless: true } },
-        { engine: "Playwright Chromium", options: { headless: true } },
-      ]
-    : [
-        { engine: "Google Chrome", options: { channel: "chrome", headless: true, args: ["--no-sandbox"] } },
-        { engine: "Playwright Chromium", options: { headless: true, args: ["--no-sandbox"] } },
-      ];
-  const failures: string[] = [];
-  for (const attempt of attempts) {
-    try {
-      return { browser: await chromium.launch(attempt.options), engine: attempt.engine };
-    } catch (error) {
-      failures.push(`${attempt.engine}: ${(error as Error).message.split("\n")[0]}`);
-    }
-  }
-  throw new Error(`No supported Chromium browser could start.\n${failures.join("\n")}`);
 }
 
 export async function createContactSheets(items: ContactSheetItem[], outputDirectory: string, prefix: string, pageSize = 24): Promise<{ files: string[]; engine: string }> {

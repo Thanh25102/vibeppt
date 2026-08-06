@@ -1,9 +1,8 @@
 #!/usr/bin/env node
-import { cp, mkdir, readFile, readdir, rm, stat, writeFile } from "node:fs/promises";
+import { cp, mkdir, readdir, rm, stat, writeFile } from "node:fs/promises";
 import { homedir, tmpdir } from "node:os";
 import path from "node:path";
-import { spawn } from "node:child_process";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { pathToFileURL } from "node:url";
 import { buildDeck, preparePreview } from "./pptx.js";
 import { formatIssues, hasErrors, loadProject, readJson, validateBrand, type LoadedTemplate } from "./model.js";
 import { evaluatePowerPointGeometry, inspectPptx, writeQaReport, type PowerPointRenderReport } from "./qa.js";
@@ -12,9 +11,8 @@ import { createPresentationProject } from "./templates.js";
 import { indexLibrary, renderLibrarySelection, renderLibraryShortlist } from "./library.js";
 import { buildCustomerKit, installCustomerKit, listInstalledKits } from "./kits.js";
 import { formatIntake, inspectIntake } from "./intake.js";
+import { isSlug, packageRoot, runPowerShell } from "./util.js";
 import type { BrandProfile, DeckSpec, ThemeName } from "./types.js";
-
-const packageRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 interface ParsedArgs {
   positionals: string[];
@@ -234,7 +232,7 @@ async function commandInit(args: ParsedArgs): Promise<void> {
 async function commandBrand(args: ParsedArgs): Promise<void> {
   if (args.positionals[1] !== "add") throw new Error("Usage: vibeppt brand add <id> --from <directory> [--project .]");
   const id = required(args.positionals[2], "Brand id is required.");
-  if (!/^[a-z0-9][a-z0-9-]*$/i.test(id)) throw new Error("Brand id may contain letters, numbers and hyphens only.");
+  if (!isSlug(id)) throw new Error("Brand id must be a lowercase slug: letters, numbers and hyphens only.");
   const source = path.resolve(required(flag(args, "from"), "--from <directory> is required."));
   const profilePath = path.join(source, "brand.json");
   const profile = await readJson<BrandProfile>(profilePath);
@@ -250,24 +248,13 @@ async function commandBrand(args: ParsedArgs): Promise<void> {
   console.log(`Brand installed: ${target}`);
 }
 
-async function runPowerShell(scriptName: string, scriptArgs: string[]): Promise<void> {
-  if (process.platform !== "win32") throw new Error(`${scriptName} requires Windows with desktop Microsoft PowerPoint installed.`);
-  const executable = "powershell.exe";
-  const child = spawn(executable, ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", path.join(packageRoot, "scripts", scriptName), ...scriptArgs], { stdio: "inherit" });
-  const code = await new Promise<number>((resolve, reject) => {
-    child.on("error", reject);
-    child.on("exit", (value) => resolve(value ?? 1));
-  });
-  if (code !== 0) throw new Error(`${scriptName} failed with exit code ${code}.`);
-}
-
 async function commandImport(args: ParsedArgs): Promise<void> {
   const input = path.resolve(required(args.positionals[1], "Usage: vibeppt import-pptx <reference.pptx> --out sources/reference"));
   const outDir = path.resolve(required(flag(args, "out"), "--out <directory> is required."));
   if (process.platform !== "win32") throw new Error("PPTX import requires Windows with desktop Microsoft PowerPoint installed.");
   if (!(await exists(input))) throw new Error(`Reference PPTX not found: ${input}`);
   await prepareOutput(outDir, args.flags.has("force"));
-  await runPowerShell("powerpoint-import.ps1", ["-InputPptx", input, "-OutputDir", outDir]);
+  await runPowerShell("powerpoint-import.ps1", ["-InputPptx", input, "-OutputDir", outDir], { inherit: true });
   console.log(`Reference extracted: ${outDir}`);
 }
 
@@ -279,7 +266,7 @@ async function commandQa(args: ParsedArgs): Promise<void> {
   if ((process.platform === "win32" && !args.flags.has("structural-only")) || args.flags.has("powerpoint")) {
     const renderDir = path.join(path.dirname(outputPath), "powerpoint-render");
     await prepareOutput(renderDir, true);
-    await runPowerShell("powerpoint-export.ps1", ["-InputPptx", input, "-OutputDir", renderDir]);
+    await runPowerShell("powerpoint-export.ps1", ["-InputPptx", input, "-OutputDir", renderDir], { inherit: true });
     // A quality gate that silently no-ops is worse than no gate, so surface the failure.
     const render = await readJson<PowerPointRenderReport>(path.join(renderDir, "powerpoint-render.json"))
       .catch((error: Error) => error);

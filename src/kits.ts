@@ -1,24 +1,19 @@
-import { createHash, randomBytes } from "node:crypto";
+import { randomBytes } from "node:crypto";
 import { homedir } from "node:os";
 import { cp, lstat, mkdir, readFile, readdir, rename, rm, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import JSZip from "jszip";
 import { formatIssues, hasErrors, readJson, validateBrand, validateTemplate } from "./model.js";
+import { isInside, isSlug, packageRoot, sha256 } from "./util.js";
 import type { BrandProfile, CustomerKitManifest, TemplateProfile } from "./types.js";
 
 const MAX_FILES = 2_000;
 const MAX_BYTES = 250 * 1024 * 1024;
 const SAFE_EXTENSIONS = new Set([".json", ".css", ".md", ".webp", ".png", ".jpg", ".jpeg", ".svg", ".pptx"]);
 const SAFE_ROOTS = new Set(["templates", "brands", "demo"]);
-const packageRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 export function defaultUserDataRoot(): string {
   return path.join(homedir(), ".vibeppt");
-}
-
-function isSlug(value: unknown): value is string {
-  return typeof value === "string" && /^[a-z0-9][a-z0-9-]*$/.test(value);
 }
 
 function safeArchivePath(value: string): string {
@@ -37,10 +32,6 @@ function validateKitFilePath(relative: string): void {
   const extension = path.posix.extname(normalized).toLowerCase();
   if (!SAFE_EXTENSIONS.has(extension)) throw new Error(`Kit file type is not allowed: ${relative}`);
   if (extension === ".pptx" && root !== "demo") throw new Error(`Source PPTX files are not allowed in customer kits: ${relative}`);
-}
-
-function sha256(content: Buffer): string {
-  return createHash("sha256").update(content).digest("hex");
 }
 
 async function walkFiles(root: string, relative = ""): Promise<string[]> {
@@ -98,8 +89,7 @@ async function validateInstalledContent(root: string, manifest: CustomerKitManif
     if (hasErrors(issues)) throw new Error(formatIssues(issues));
     for (const reference of [profile.stylesheet, profile.brandProfile, profile.sampleDeck, profile.recipe, profile.preview.dark, profile.preview.light]) {
       const target = path.resolve(directory, reference);
-      const relative = path.relative(directory, target);
-      if (relative.startsWith("..") || path.isAbsolute(relative) || !(await stat(target).catch(() => null))?.isFile()) {
+      if (!isInside(directory, target) || !(await stat(target).catch(() => null))?.isFile()) {
         throw new Error(`Template ${id} has a missing or external asset: ${reference}`);
       }
     }
@@ -112,8 +102,7 @@ async function validateInstalledContent(root: string, manifest: CustomerKitManif
     if (hasErrors(issues)) throw new Error(formatIssues(issues));
     for (const reference of [profile.logo, profile.logos?.light, profile.logos?.dark].filter((item): item is string => Boolean(item))) {
       const target = path.resolve(directory, reference);
-      const relative = path.relative(directory, target);
-      if (relative.startsWith("..") || path.isAbsolute(relative) || !(await stat(target).catch(() => null))?.isFile()) {
+      if (!isInside(directory, target) || !(await stat(target).catch(() => null))?.isFile()) {
         throw new Error(`Brand ${id} has a missing or external logo: ${reference}`);
       }
     }

@@ -1,12 +1,10 @@
 import { cp, copyFile, mkdir, readdir, stat, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { formatIssues, hasErrors, readJson, validateBrand, validateTemplate } from "./model.js";
 import { defaultUserDataRoot, installedBrandDirectories, installedTemplateDirectories } from "./kits.js";
+import { isInside, isSlug, packageRoot } from "./util.js";
 import type { BrandProfile, DeckSpec, TemplateProfile, ThemeName } from "./types.js";
-
-const packageRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 export interface ProjectBrief {
   projectName: string;
@@ -57,7 +55,7 @@ async function exists(filePath: string): Promise<boolean> {
 }
 
 function assertTemplateId(id: string): void {
-  if (!/^[a-z0-9][a-z0-9-]*$/.test(id)) throw new Error(`Invalid template id: ${id}`);
+  if (!isSlug(id)) throw new Error(`Invalid template id: ${id}`);
 }
 
 function validateBrief(brief: ProjectBrief): void {
@@ -78,8 +76,7 @@ async function loadTemplateDirectory(id: string, directory: string): Promise<{ p
   if (hasErrors(issues)) throw new Error(formatIssues(issues));
   for (const reference of [profile.stylesheet, profile.brandProfile, profile.sampleDeck, profile.recipe, profile.preview.dark, profile.preview.light]) {
     const resolved = path.resolve(directory, reference);
-    const relative = path.relative(directory, resolved);
-    if (relative.startsWith("..") || path.isAbsolute(relative) || !(await stat(resolved).catch(() => null))?.isFile()) {
+    if (!isInside(directory, resolved) || !(await stat(resolved).catch(() => null))?.isFile()) {
       throw new Error(`Template asset not found or outside its pack: ${reference}`);
     }
   }
@@ -197,8 +194,7 @@ export async function createPresentationProject(options: CreateProjectOptions): 
   const brandDirectory = path.dirname(brandSource);
   const copyBrandAsset = async (reference: string, stem: string): Promise<string> => {
     const source = path.resolve(brandDirectory, reference);
-    const relative = path.relative(brandDirectory, source);
-    if (relative.startsWith("..") || path.isAbsolute(relative) || !(await stat(source).catch(() => null))?.isFile()) throw new Error(`Brand asset not found or outside its profile: ${reference}`);
+    if (!isInside(brandDirectory, source) || !(await stat(source).catch(() => null))?.isFile()) throw new Error(`Brand asset not found or outside its profile: ${reference}`);
     const filename = `${stem}${path.extname(source).toLowerCase()}`;
     await copyFile(source, path.join(target, "brand", filename));
     return filename;

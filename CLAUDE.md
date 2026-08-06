@@ -32,14 +32,22 @@ so **run `npm run build` before testing a `src/` change through the CLI**.
 | `src/pptx.ts` | Playwright screenshot + pptxgenjs native objects (hybrid output) |
 | `src/library.ts` | customer PPTX library index / shortlist render / selection render |
 | `src/kits.ts` | `.vibeppt-kit` build + install (checksums, path safety, limits) |
-| `src/templates.ts` | the 8 public template packs, project scaffolding |
+| `src/templates.ts` | the 9 public template packs, project scaffolding |
 | `src/studio.ts` | localhost-only Studio HTTP server |
-| `src/qa.ts` | structural PPTX inspection |
+| `src/qa.ts` | structural PPTX inspection + the PowerPoint geometry gate |
+| `src/intake.ts` | `vibeppt intake` — what the customer must supply before authoring |
+| `src/util.ts` | `packageRoot`, `isSlug`, `isInside`, `sha256`, `portableRelative`, `runPowerShell` |
+| `src/browser.ts` | `launchBrowser()` — the Edge → Chrome → bundled Chromium fallback |
 | `scripts/*.ps1` | Windows PowerPoint COM automation, font list, folder pickers |
 | `skill/beautiful-ppt/` | the Codex skill: `SKILL.md` + `references/` |
 
 TypeScript is `strict` with `noUncheckedIndexedAccess` and `exactOptionalPropertyTypes`.
 That last one is why optional fields are spread conditionally: `...(x ? { x } : {})`.
+
+`util.ts` and `browser.ts` exist because those helpers had drifted into two to four private
+copies each. Reach for them before writing a new one; every id in the system — deck, brand,
+template, kit, layout — is the same lowercase `isSlug`, and every PowerShell call goes through
+`runPowerShell` (`{ inherit: true }` streams a long PowerPoint run to the terminal).
 
 ## Hard invariants
 

@@ -1,6 +1,6 @@
-import { createHash } from "node:crypto";
 import { copyFile, mkdir, readFile, stat } from "node:fs/promises";
 import path from "node:path";
+import { isInside, isSlug, sha256 } from "./util.js";
 import {
   SLIDE_KINDS,
   type BrandProfile,
@@ -25,24 +25,17 @@ function isHex(value: unknown): value is string {
   return typeof value === "string" && /^#[0-9a-f]{6}$/i.test(value);
 }
 
-function isSlug(value: unknown): value is string {
-  return typeof value === "string" && /^[a-z0-9][a-z0-9-]*$/.test(value);
-}
-
 function isLocalReference(value: unknown): value is string {
   return typeof value === "string" && Boolean(value.trim()) && !/^(?:https?:)?\/\//i.test(value);
-}
-
-function isInside(root: string, target: string): boolean {
-  const relative = path.relative(path.resolve(root), path.resolve(target));
-  return relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative));
 }
 
 export async function readJson<T>(filePath: string): Promise<T> {
   const content = await readFile(filePath, "utf8");
   try {
     // Windows PowerShell 5.1 writes UTF-8 with a BOM, which JSON.parse rejects outright.
-    return JSON.parse(content.replace(/^﻿/, "")) as T;
+    // Compared by code point rather than matched literally: an invisible BOM in this source
+    // file is exactly the kind of edit the next person deletes by accident.
+    return JSON.parse(content.charCodeAt(0) === 0xfeff ? content.slice(1) : content) as T;
   } catch (error) {
     throw new Error(`Invalid JSON in ${filePath}: ${(error as Error).message}`);
   }
@@ -382,7 +375,7 @@ export async function copyAsset(source: string, assetDir: string): Promise<strin
   const info = await stat(absoluteSource).catch(() => null);
   if (!info?.isFile()) throw new Error(`Asset not found: ${absoluteSource}`);
   const extension = path.extname(absoluteSource).toLowerCase() || ".bin";
-  const digest = createHash("sha256").update(await readFile(absoluteSource)).digest("hex").slice(0, 10);
+  const digest = sha256(await readFile(absoluteSource)).slice(0, 10);
   const filename = `${slugify(path.basename(absoluteSource, extension))}-${digest}${extension}`;
   await mkdir(assetDir, { recursive: true });
   await copyFile(absoluteSource, path.join(assetDir, filename));

@@ -36,7 +36,6 @@ export interface SlideItem {
   label?: string;
   title: string;
   body?: string;
-  value?: string;
   tone?: "accent" | "blue" | "green" | "amber" | "neutral";
 }
 
@@ -103,9 +102,7 @@ export interface SlideSpec {
   /** Substring of `title` that carries the accent colour, giving the two-tone headline. */
   titleAccent?: string;
   eyebrow?: string;
-  subtitle?: string;
   body?: string;
-  quote?: string;
   tags?: string[];
   items?: SlideItem[];
   visual?: VisualSpec;
@@ -296,10 +293,8 @@ export interface LintIssue {
 }
 
 export interface FlatSlide {
-  sectionId: string;
   sectionTitle: string;
   sectionTimeBudget?: string;
-  sectionIndex: number;
   slideIndex: number;
   slide: SlideSpec;
 }
@@ -357,20 +352,9 @@ export interface SlideMeasurement {
 }
 
 export function flattenSlides(deck: DeckSpec): FlatSlide[] {
-  const result: FlatSlide[] = [];
-  let slideIndex = 0;
-  deck.sections.forEach((section, sectionIndex) => {
-    section.slides.forEach((slide) => {
-      result.push({
-        sectionId: section.id,
-        sectionTitle: section.title,
-        ...(section.timeBudget ? { sectionTimeBudget: section.timeBudget } : {}),
-        sectionIndex,
-        slideIndex,
-        slide,
-      });
-      slideIndex += 1;
-    });
-  });
-  return result;
+  return deck.sections.flatMap((section) => section.slides.map((slide) => ({
+    sectionTitle: section.title,
+    ...(section.timeBudget ? { sectionTimeBudget: section.timeBudget } : {}),
+    slide,
+  }))).map((entry, slideIndex) => ({ ...entry, slideIndex }));
 }

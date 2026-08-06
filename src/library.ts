@@ -1,15 +1,11 @@
-import { createHash } from "node:crypto";
-import { spawn } from "node:child_process";
 import { homedir } from "node:os";
 import { mkdir, readFile, readdir, rm, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import JSZip from "jszip";
 import { createContactSheets, type ContactSheetItem } from "./contact-sheet.js";
 import { readJson, slugify } from "./model.js";
+import { isSlug, portableRelative, runPowerShell, sha256 } from "./util.js";
 import { SLIDE_KINDS, type CurationCandidate, type CurationSelection, type LibraryCatalog, type LibraryDeck, type LibraryDeckStats, type LibraryShortlist, type ThemeName } from "./types.js";
-
-const packageRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 export interface IndexLibraryOptions {
   sourceRoot: string;
@@ -27,20 +23,12 @@ export interface RenderLibraryOptions {
   createSheets?: boolean;
 }
 
-function sha256(value: Buffer | string): string {
-  return createHash("sha256").update(value).digest("hex");
-}
-
 function decodeXml(value: string): string {
   return value.replaceAll("&amp;", "&").replaceAll("&lt;", "<").replaceAll("&gt;", ">").replaceAll("&quot;", '"').replaceAll("&#39;", "'");
 }
 
 function numericSort(left: string, right: string): number {
   return left.localeCompare(right, undefined, { numeric: true });
-}
-
-function portableRelative(root: string, target: string): string {
-  return path.relative(root, target).split(path.sep).join("/");
 }
 
 async function pptxFiles(directory: string): Promise<string[]> {
@@ -114,20 +102,9 @@ async function inspectDeck(source: string, sourceRoot: string): Promise<{ deck: 
 }
 
 async function runPowerPointImport(input: string, output: string, options: { slides?: number[]; format: "PNG" | "JPG"; width: number; height: number }): Promise<void> {
-  if (process.platform !== "win32") throw new Error("PowerPoint rendering requires Windows with desktop Microsoft PowerPoint installed.");
-  const args = [
-    "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", path.join(packageRoot, "scripts", "powerpoint-import.ps1"),
-    "-InputPptx", input, "-OutputDir", output, "-Format", options.format, "-Width", String(options.width), "-Height", String(options.height),
-  ];
+  const args = ["-InputPptx", input, "-OutputDir", output, "-Format", options.format, "-Width", String(options.width), "-Height", String(options.height)];
   if (options.slides?.length) args.push("-SlideIndices", options.slides.join(","));
-  const child = spawn("powershell.exe", args, { windowsHide: true, stdio: ["ignore", "pipe", "pipe"] });
-  const stderr: Buffer[] = [];
-  child.stderr.on("data", (chunk) => stderr.push(Buffer.from(chunk)));
-  const code = await new Promise<number>((resolve, reject) => {
-    child.once("error", reject);
-    child.once("exit", (value) => resolve(value ?? 1));
-  });
-  if (code !== 0) throw new Error(Buffer.concat(stderr).toString("utf8").trim() || `PowerPoint import failed with exit code ${code}.`);
+  await runPowerShell("powerpoint-import.ps1", args);
 }
 
 async function embeddedThumbnail(zip: JSZip): Promise<{ content: Buffer; extension: string } | null> {
@@ -204,7 +181,7 @@ export async function indexLibrary(options: IndexLibraryOptions): Promise<Librar
       const inspected = await inspectDeck(source, sourceRoot);
       const previous = existingBySource.get(path.resolve(source));
       const wantsNativeSamples = !options.structuralOnly && process.platform === "win32";
-      const nativeSampleImages = inspected.deck.sampleSlides.map((index) => path.relative(outDir, path.join(outDir, "decks", inspected.deck.id, "samples", `slide-${String(index).padStart(3, "0")}.jpg`)).split(path.sep).join("/"));
+      const nativeSampleImages = inspected.deck.sampleSlides.map((index) => portableRelative(outDir, path.join(outDir, "decks", inspected.deck.id, "samples", `slide-${String(index).padStart(3, "0")}.jpg`)));
       const previousMatchesMode = !wantsNativeSamples || (
         previous?.sampleSlides.length === inspected.deck.sampleSlides.length
         && previous.sampleImages.length === inspected.deck.sampleSlides.length
@@ -215,7 +192,7 @@ export async function indexLibrary(options: IndexLibraryOptions): Promise<Librar
         previous.sampleImages.forEach((image, index) => sheetItems.push({ image: path.join(outDir, image), label: previous.name, caption: previous.sampleSlides[index] ? `Slide ${previous.sampleSlides[index]}` : previous.category }));
         continue;
       }
-      const nativeReference = path.relative(outDir, path.join(outDir, "decks", inspected.deck.id, "samples", "reference.json")).split(path.sep).join("/");
+      const nativeReference = portableRelative(outDir, path.join(outDir, "decks", inspected.deck.id, "samples", "reference.json"));
       if (!options.force && wantsNativeSamples && nativeSampleImages.length && await allExist(outDir, [...nativeSampleImages, nativeReference])) {
         const deck: LibraryDeck = { ...inspected.deck, sampleImages: nativeSampleImages, status: "ready" };
         decks.push(deck);
@@ -231,11 +208,11 @@ export async function indexLibrary(options: IndexLibraryOptions): Promise<Librar
         if (thumbnail) {
           const filename = `deck-thumbnail${thumbnail.extension}`;
           await writeFile(path.join(samplesDir, filename), thumbnail.content);
-          sampleImages.push(path.relative(outDir, path.join(samplesDir, filename)).split(path.sep).join("/"));
+          sampleImages.push(portableRelative(outDir, path.join(samplesDir, filename)));
         }
       } else {
         await runPowerPointImport(source, samplesDir, { slides: inspected.deck.sampleSlides, format: "JPG", width: 640, height: 360 });
-        sampleImages.push(...inspected.deck.sampleSlides.map((index) => path.relative(outDir, path.join(samplesDir, `slide-${String(index).padStart(3, "0")}.jpg`)).split(path.sep).join("/")));
+        sampleImages.push(...inspected.deck.sampleSlides.map((index) => portableRelative(outDir, path.join(samplesDir, `slide-${String(index).padStart(3, "0")}.jpg`))));
       }
       const deck: LibraryDeck = { ...inspected.deck, ...(options.structuralOnly || process.platform !== "win32" ? { sampleSlides: [] } : {}), sampleImages, status: "ready" };
       decks.push(deck);
@@ -287,7 +264,7 @@ export function validateCurationSelection(selection: CurationSelection, catalog:
   if (selection.version !== 1 || selection.libraryId !== catalog.id || !selection.layouts?.length) throw new Error("Invalid curation selection.");
   const ids = new Set<string>();
   for (const layout of selection.layouts) {
-    if (!/^[a-z0-9][a-z0-9-]*$/.test(layout.id) || ids.has(layout.id)) throw new Error(`Invalid or duplicate layout id: ${layout.id}`);
+    if (!isSlug(layout.id) || ids.has(layout.id)) throw new Error(`Invalid or duplicate layout id: ${layout.id}`);
     ids.add(layout.id);
     if (!SLIDE_KINDS.includes(layout.kind)) throw new Error(`Unsupported layout kind: ${layout.kind}`);
     validateCandidate(layout.selected, catalog);
@@ -313,7 +290,7 @@ export async function renderLibraryShortlist(shortlistPath: string, options: Ren
     }
     const slides = (await readdir(output)).filter((name) => /^slide-\d+\.jpg$/i.test(name)).sort(numericSort).map((name) => path.join(output, name));
     const contactSheets = options.createSheets === false ? [] : (await createContactSheets(slides.map((image, index) => ({ image, label: `${deck.name} · ${String(index + 1).padStart(3, "0")}` })), path.join(workspace, "contact-sheets"), deck.id)).files;
-    summaries.push({ deckId: id, slides: slides.map((item) => path.relative(workspace, item).split(path.sep).join("/")), contactSheets: contactSheets.map((item) => path.relative(workspace, item).split(path.sep).join("/")) });
+    summaries.push({ deckId: id, slides: slides.map((item) => portableRelative(workspace, item)), contactSheets: contactSheets.map((item) => portableRelative(workspace, item)) });
   }
   await writeFile(path.join(workspace, "rendered.json"), JSON.stringify({ version: 1, libraryId: catalog.id, renderedAt: new Date().toISOString(), decks: summaries }, null, 2), "utf8");
 }

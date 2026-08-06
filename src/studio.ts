@@ -3,15 +3,14 @@ import { spawn } from "node:child_process";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { copyFile, mkdir, readFile, rm, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { createPresentationProject, listAvailableBrands, listAvailableTemplates, type ProjectBrief } from "./templates.js";
 import { formatIssues, hasErrors, readJson, slugify, validateBrand } from "./model.js";
 import { renderDeckHtml } from "./html.js";
 import { defaultUserDataRoot, installCustomerKit, listInstalledKits, saveLocalBrand } from "./kits.js";
 import { validateCurationSelection, validateLibraryShortlist } from "./library.js";
+import { isInside, packageRoot, runPowerShell } from "./util.js";
 import type { BrandProfile, CurationSelection, DeckSpec, LibraryCatalog, LibraryShortlist, ThemeName } from "./types.js";
 
-const packageRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const MAX_BODY_BYTES = 1024 * 1024;
 
 type Selection = { kind: "folder" | "sources" | "logo" | "kit"; paths: string[] };
@@ -60,11 +59,6 @@ function contentType(filePath: string): string {
   }
 }
 
-function isInside(root: string, target: string): boolean {
-  const relative = path.relative(path.resolve(root), path.resolve(target));
-  return relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative));
-}
-
 async function sendFile(response: ServerResponse, filePath: string): Promise<void> {
   const info = await stat(filePath).catch(() => null);
   if (!info?.isFile()) {
@@ -73,22 +67,6 @@ async function sendFile(response: ServerResponse, filePath: string): Promise<voi
   }
   response.writeHead(200, { "Content-Type": contentType(filePath), "Cache-Control": "no-cache" });
   response.end(await readFile(filePath));
-}
-
-async function runPowerShell(scriptName: string, args: string[] = []): Promise<string> {
-  if (process.platform !== "win32") throw new Error("This action requires Windows.");
-  const script = path.join(packageRoot, "scripts", scriptName);
-  const child = spawn("powershell.exe", ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", script, ...args], { windowsHide: true });
-  const stdout: Buffer[] = [];
-  const stderr: Buffer[] = [];
-  child.stdout.on("data", (chunk) => stdout.push(Buffer.from(chunk)));
-  child.stderr.on("data", (chunk) => stderr.push(Buffer.from(chunk)));
-  const code = await new Promise<number>((resolve, reject) => {
-    child.on("error", reject);
-    child.on("exit", (value) => resolve(value ?? 1));
-  });
-  if (code !== 0) throw new Error(Buffer.concat(stderr).toString("utf8").trim() || `${scriptName} failed with exit code ${code}.`);
-  return Buffer.concat(stdout).toString("utf8").trim();
 }
 
 function openBrowser(url: string): void {

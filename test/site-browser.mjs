@@ -1,6 +1,11 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { chromium } from "playwright";
+import { listTemplates } from "../dist/templates.js";
+
+// Derived, not hardcoded: a literal count here fails every time a pack is added, which says
+// nothing about the site being broken.
+const templateCount = (await listTemplates()).length;
 
 async function launch() {
   const attempts = [{ channel: "chrome", headless: true, args: ["--no-sandbox"] }, { headless: true, args: ["--no-sandbox"] }];
@@ -32,7 +37,7 @@ try {
   page.on("response", (response) => { if (response.status() >= 400) errors.push(`${response.status()} ${response.url()}`); });
   await page.goto(origin, { waitUntil: "networkidle" });
   assert.match(await page.locator("h1").innerText(), /Xem slide trước/);
-  assert.equal(await page.locator("[data-template-card]").count(), 8);
+  assert.equal(await page.locator("[data-template-card]").count(), templateCount);
   assert.equal(await page.locator("img:not([alt]), img[alt='']").count(), 0);
 
   await page.getByRole("button", { name: "Chiến dịch" }).click();
@@ -54,7 +59,7 @@ try {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   assert.ok(overflow <= 1, `Mobile page overflows by ${overflow}px.`);
   assert.deepEqual(errors, []);
-  console.log(JSON.stringify({ templates: 8, filters: "pass", theme: "pass", dialog: "pass", liveDemo: "pass", mobile: "pass" }));
+  console.log(JSON.stringify({ templates: templateCount, filters: "pass", theme: "pass", dialog: "pass", liveDemo: "pass", mobile: "pass" }));
 } finally {
   await browser?.close();
   child.kill("SIGTERM");
