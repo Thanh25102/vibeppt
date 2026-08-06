@@ -58,7 +58,9 @@ powershell -ExecutionPolicy Bypass -File .\scripts\build-installer.ps1
 
 The result lands in `dist-installer\`. It bundles whatever `node.exe` the build machine runs, which must be version 22 or newer.
 
-**Unsigned builds trip SmartScreen.** Until the executable is signed, the first run shows *"Windows protected your PC"* and the user has to click **More info → Run anyway**. Plan for a code signing certificate before this goes to anyone who would read that screen as a virus warning.
+**Sign the executable before shipping it to anyone.** Unsigned, it shows *"Windows protected your PC"* on first run and the user must click **More info → Run anyway**. That is the mild failure. The severe one was observed during development: Kaspersky Endpoint Security deleted the installer *while it was running*, leaving a half-copied folder, no Start Menu entry, no uninstall entry and no closing dialog — indistinguishable, from the user's side, from the installer doing nothing. Endpoint products score an unsigned binary that drops executables and edits `PATH`, and the behaviour is not deterministic: a later build of the same installer ran untouched on the same machine.
+
+Until there is a certificate, expect to walk each user through an antivirus exclusion, and treat any report of "I ran it and nothing happened" as a possible quarantine rather than a user error. `%LOCALAPPDATA%\Programs\VibePPT` containing some but not all of `dist`, `templates`, `presets`, `studio`, `scripts` and `skill` is the signature.
 
 ### From a git checkout
 

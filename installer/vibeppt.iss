@@ -24,7 +24,10 @@ VersionInfoProductName=VibePPT
 VersionInfoDescription=VibePPT setup
 ; Per-user install: no administrator prompt, which is the whole point of shipping an installer.
 PrivilegesRequired=lowest
-DefaultDirName={localappdata}\VibePPT
+; {autopf} resolves to %LOCALAPPDATA%\Programs under PrivilegesRequired=lowest, which is where
+; Windows expects a per-user app to live. Dropping executables in the root of LOCALAPPDATA is
+; also a behaviour that endpoint security products score against an unsigned installer.
+DefaultDirName={autopf}\VibePPT
 DefaultGroupName=VibePPT
 DisableProgramGroupPage=yes
 DisableDirPage=auto
