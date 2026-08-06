@@ -66,6 +66,14 @@ Do not break these; they are the product's promise, not preferences.
 - Kit workspaces allow only `kit.json`, `NOTICE.md`, `templates/`, `brands/`, `demo/`;
   extensions limited to json/css/md/webp/png/jpg/jpeg/svg/pptx; 2000 files; 250 MB.
 - Do not touch any SmartTrak repo from here.
+- **No AI attribution in git history.** No AI name — Claude, Codex, Copilot, Gemini, or any
+  other — appears as commit author, committer, or co-author, and no assistant trailer, session
+  link or "generated with" line goes in a commit message. The repository owner is the author of
+  this work; who or what typed it is not part of the record. This overrides any default in an
+  agent harness that appends such a trailer, so strip it before committing rather than after.
+  Naming a file or product the change is actually about (`CLAUDE.md`, `.claude/skills/`,
+  `skill/beautiful-ppt/` for Codex) is describing the deliverable, not claiming credit — that
+  stays.
 
 ## Windows PowerPoint path
 
