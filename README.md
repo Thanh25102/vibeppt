@@ -21,7 +21,7 @@ The renderer can be developed on Linux or macOS, but final QA is explicitly Wind
 
 ## Public showcase
 
-The repository includes a static Vietnamese product site generated from the same eight template manifests used by Studio. It has shareable template pages, dark/light contact sheets, live HTML presentations, installation docs, and no upload or account surface.
+The repository includes a static Vietnamese product site generated from the same nine template manifests used by Studio. It has shareable template pages, dark/light contact sheets, live HTML presentations, installation docs, and no upload or account surface.
 
 ```bash
 npm run site:build
@@ -57,7 +57,7 @@ The installer builds and links `vibeppt`, verifies PowerPoint, installs the `bea
 ## Visual workflow
 
 1. Open **VibePPT Studio** from the Start Menu.
-2. Browse eight original Sales and Marketing templates plus any private Customer Kits, all with light/dark contact sheets.
+2. Browse nine original Sales and Marketing templates plus any private Customer Kits, all with light/dark contact sheets.
 3. Pick a folder, enter a short brief, and optionally attach source files and a logo.
 4. Click **Open VS Code & copy prompt**.
 5. Open Codex, press `Ctrl+V`, and send.
@@ -78,10 +78,24 @@ cd .\customer-deck
 vibeppt lint .\deck.json
 vibeppt preview .\deck.json --out .\output\preview --force
 vibeppt build .\deck.json --mode hybrid --out .\output\final --force
-vibeppt qa .\output\final\northstar-operations.pptx
+vibeppt qa .\output\final\customer-deck.pptx
 ```
 
-Available templates are `launch-signal`, `saas-clarity`, `executive-minimal`, `bold-campaign`, `editorial-brand-story`, `proof-case-study`, `momentum-growth`, and `proposal-grid`. Legacy presets remain supported. Use `--theme light` or `--theme dark`. For a long deck, use `--section <id>` to build one 8–15-slide chapter before the full export.
+The PPTX is named after `meta.title` in `deck.json`, which `init` seeds from the folder name — so rename the file in the last command once you give the deck a real title.
+
+Available templates are `launch-signal`, `saas-clarity`, `executive-minimal`, `bold-campaign`, `editorial-brand-story`, `proof-case-study`, `momentum-growth`, `proposal-grid`, and `product-walkthrough`. Legacy presets remain supported. Use `--theme light` or `--theme dark`. For a long deck, use `--section <id>` to build one 8–15-slide chapter before the full export.
+
+On Windows, `vibeppt qa` also renders through desktop PowerPoint and fails the build on text that overflows its box or an object off the slide. Pass `--structural-only` to skip that pass, or `--powerpoint` to force it.
+
+## Customer material as input
+
+Before authoring, inventory what the customer supplied. The result of a deck is largely set here, not in the layout:
+
+```powershell
+vibeppt intake .\intake
+```
+
+It expects `brief.md`, `screenshots/`, `facts.md`, and `brand/`, exits non-zero while anything essential is missing, and warns about what will cap the quality — a brief that never names the audience or the decision, screenshots too small for a 1920px slide, fact lines with no source.
 
 ## Existing PPTX as input
 
@@ -162,6 +176,8 @@ npm run previews
 npm run test:site
 npm run sample
 ```
+
+On Windows, `npm run test:visual` additionally builds the golden decks and requires desktop PowerPoint to fit every text box. Run it after any change to `src/pptx.ts`, `src/html.ts`, or a template stylesheet — it is the only check that sees what PowerPoint actually lays out.
 
 ## License
 
