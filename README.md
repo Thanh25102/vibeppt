@@ -37,22 +37,53 @@ docker compose -f compose.site.yml up -d
 
 Open `http://SERVER_IP:8080`. Put an existing reverse proxy and TLS in front of container port `8080` when a domain is ready.
 
-## Install for a Codex user
+## Install
 
-Clone the repository, then open PowerShell in it:
+Two paths, one end state: a global `vibeppt` command, the `beautiful-ppt` skill installed for both Codex and Claude Code, and a **VibePPT Studio** entry in the Windows Start Menu.
+
+### From a git checkout
+
+For your own machine, or any machine that should track changes:
 
 ```powershell
 git clone https://github.com/Thanh25102/vibeppt.git
 cd vibeppt
-```
-
-Run the installer:
-
-```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\install.ps1
 ```
 
-The installer builds and links `vibeppt`, verifies PowerPoint, installs the `beautiful-ppt` Codex skill, and adds **VibePPT Studio** to the Windows Start Menu. Restart Codex after installation.
+It checks Node, builds, runs `npm link`, then calls `vibeppt setup`. `npm link` symlinks the global command back to this folder, so leave the checkout where it is. If linking fails with `EPERM`, either run PowerShell as Administrator or move npm to a user-writable prefix with `npm config set prefix "$env:APPDATA\npm"`.
+
+### From a packed tarball
+
+For handing the tool to someone else. Build the artifact once, on any platform:
+
+```powershell
+npm run pack        # -> vibeppt-cli-<version>.tgz, about 650 kB
+```
+
+Then on the target machine, which needs nothing but Node:
+
+```powershell
+npm install -g --ignore-scripts .\vibeppt-cli-0.4.0-alpha.1.tgz
+vibeppt setup
+```
+
+No git, no TypeScript build, no dev dependencies. `--ignore-scripts` skips Playwright's browser download because the renderer drives the installed Edge or Chrome; on a machine with neither, run `npx playwright install chromium` afterwards.
+
+### What `vibeppt setup` does
+
+Copies `skill/beautiful-ppt` into `~/.codex/skills/` and `~/.claude/skills/`, reports whether desktop PowerPoint answered, and writes the Start Menu shortcut. It is safe to re-run: an existing skill is moved to `~/.vibeppt/skill-backups/` first, deliberately outside the skills folder, because a backup left beside a skill is itself a valid `SKILL.md` and the agent would load it as a second copy. Pass `--no-shortcut` to skip the Start Menu entry. Restart the agent afterwards.
+
+The `.claude/skills/vibe-deck/` skill in this repository is a thin Claude Code wrapper whose links are relative to the checkout; it applies when you work inside the repository itself, and is not part of `setup`.
+
+### Verify the machine
+
+```powershell
+vibeppt help
+npm run test:visual   # from a checkout only
+```
+
+`test:visual` is the acceptance check that matters: it builds the golden decks through the real browser and requires desktop PowerPoint to fit every text box. Green means both halves of the toolchain work on that machine.
 
 ## Visual workflow
 
@@ -60,7 +91,7 @@ The installer builds and links `vibeppt`, verifies PowerPoint, installs the `bea
 2. Browse nine original Sales and Marketing templates plus any private Customer Kits, all with light/dark contact sheets.
 3. Pick a folder, enter a short brief, and optionally attach source files and a logo.
 4. Click **Open VS Code & copy prompt**.
-5. Open Codex, press `Ctrl+V`, and send.
+5. Open Codex or Claude Code, press `Ctrl+V`, and send.
 
 Studio binds only to `127.0.0.1`, does not call a cloud service, and never asks for an API key. It creates a portable presentation project and hands the actual authoring/build work to the installed skill.
 

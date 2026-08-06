@@ -27,6 +27,7 @@
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
+    "pack": "npm run build && npm pack",
     "test": "npm run build && node --test test/*.test.mjs",
     "sample": "npm run build && node dist/cli.js build examples/northstar/deck.json --out .artifacts/northstar --force",
     "previews": "npm run build && node scripts/render-template-previews.mjs",

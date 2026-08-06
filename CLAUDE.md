@@ -12,6 +12,7 @@ modules, no framework.
 ```powershell
 npm test            # tsc build + node --test test/*.test.mjs
 npm run build       # tsc only -> dist/
+npm run pack        # build + npm pack -> vibeppt-cli-<version>.tgz, the deployable artifact
 npm run test:visual # build golden decks, require PowerPoint to fit every text box (Windows)
 npm run previews    # regenerate template preview webp
 npm run sample      # build examples/northstar
@@ -21,6 +22,13 @@ vibeppt help        # CLI surface
 
 `vibeppt` is linked globally (`C:\Program Files\nodejs\vibeppt.ps1`) and runs `dist/cli.js`,
 so **run `npm run build` before testing a `src/` change through the CLI**.
+
+Deployment has two shapes and one end state. A checkout uses `scripts/install.ps1`
+(node check → build → `npm link` → `vibeppt setup`); a handoff uses `npm run pack` then
+`npm install -g --ignore-scripts <tarball>` + `vibeppt setup`. Everything after the install —
+skills for both agents, the PowerPoint probe, the Start Menu shortcut — lives in `vibeppt setup`
+precisely so both shapes share one implementation; `packageRoot` resolves correctly either way.
+Anything added to that flow belongs in `commandSetup`, not in a second PowerShell script.
 
 ## Layout
 

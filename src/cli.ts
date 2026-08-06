@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { cp, mkdir, readdir, rm, stat, writeFile } from "node:fs/promises";
+import { cp, mkdir, readdir, rename, rm, stat, writeFile } from "node:fs/promises";
 import { homedir, tmpdir } from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -356,6 +356,42 @@ async function commandIntake(args: ParsedArgs): Promise<void> {
   if (!report.ready) process.exitCode = 1;
 }
 
+// Both agents read the same skill folder. This runs from a git checkout and from a global
+// install of the packed tarball, which is why it is a command and not another PowerShell script.
+const SKILL_TARGETS = [
+  { agent: "Codex", home: ".codex" },
+  { agent: "Claude Code", home: ".claude" },
+] as const;
+
+async function commandSetup(args: ParsedArgs): Promise<void> {
+  const source = path.join(packageRoot, "skill", "beautiful-ppt");
+  if (!(await exists(path.join(source, "SKILL.md")))) throw new Error(`Skill source is missing: ${source}`);
+  const home = homedir();
+  const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+  for (const target of SKILL_TARGETS) {
+    const directory = path.join(home, target.home, "skills", "beautiful-ppt");
+    if (await exists(directory)) {
+      // A backup left beside the skill is itself a valid SKILL.md, so the agent would load the
+      // stale copy as a second skill. Park it outside the skills folder instead.
+      const backup = path.join(home, ".vibeppt", "skill-backups", `${target.home.replace(/^\./, "")}-${stamp}`);
+      await mkdir(path.dirname(backup), { recursive: true });
+      await rename(directory, backup);
+      console.log(`Previous ${target.agent} skill moved to ${backup}`);
+    }
+    await mkdir(path.dirname(directory), { recursive: true });
+    await cp(source, directory, { recursive: true });
+    console.log(`${target.agent} skill: ${directory}`);
+  }
+  if (process.platform !== "win32") {
+    console.log("Not Windows: skipped the PowerPoint check and the Start Menu shortcut.");
+  } else if (args.flags.has("no-shortcut")) {
+    console.log("Skipped the Start Menu shortcut.");
+  } else {
+    console.log(await runPowerShell("setup-windows.ps1", ["-PackageRoot", packageRoot]));
+  }
+  console.log("Restart your agent, then ask: Use $beautiful-ppt to build a deck from this folder.");
+}
+
 async function commandStudio(args: ParsedArgs): Promise<void> {
   await startStudio({ openBrowser: !args.flags.has("no-open"), ...(flag(args, "workshop") ? { workshop: path.resolve(flag(args, "workshop")!) } : {}) });
 }
@@ -364,6 +400,7 @@ function help(): void {
   console.log(`VibePPT — local-first, hybrid PowerPoint generation
 
 Commands:
+  vibeppt setup [--no-shortcut]
   vibeppt studio
   vibeppt init <dir> [--template id] [--preset cinematic|editorial|corporate]
   vibeppt brand add <id> --from <dir> [--project .]
@@ -385,6 +422,7 @@ Use --force only when you want to replace the exact output directory.`);
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
   switch (args.positionals[0]) {
+    case "setup": await commandSetup(args); break;
     case "studio": await commandStudio(args); break;
     case "init": await commandInit(args); break;
     case "brand": await commandBrand(args); break;
