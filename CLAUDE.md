@@ -26,7 +26,8 @@ so **run `npm run build` before testing a `src/` change through the CLI**.
 Deployment has three shapes and one end state. A checkout uses `scripts/install.ps1` (node check
 → build → `npm link` → `vibeppt setup`); a developer handoff uses `npm run pack` then
 `npm install -g --ignore-scripts <tarball>` + `vibeppt setup`; a non-technical user gets
-`scripts/build-installer.ps1` → `dist-installer/VibePPT-Setup-<version>.exe`, which bundles
+`scripts/build-release.ps1`, which stages one payload and emits both
+`dist-installer/VibePPT-Setup-<version>.exe` and `VibePPT-<version>-portable.zip`; each bundles
 `node.exe` and needs neither Node nor a terminal. Everything after the install — skills for both
 agents, the PowerPoint probe, the Start Menu shortcut — lives in `vibeppt setup` precisely so all
 three share one implementation; `packageRoot` resolves correctly in every layout. Anything added

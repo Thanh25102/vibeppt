@@ -49,14 +49,22 @@ The installer carries its own Node runtime (about 26 MB compressed), puts `vibep
 
 To remove it, either open **Settings → Apps → VibePPT → Uninstall**, or use **Start Menu → VibePPT → Uninstall VibePPT**. Uninstalling deletes the program folder, removes the PATH entry, and takes the `beautiful-ppt` skill back out of `~/.codex/skills` and `~/.claude/skills` — leaving it would tell the agent to run a `vibeppt` command that no longer exists. Nothing is destroyed: the skill folders are moved to `~/.vibeppt/skill-backups/`, so a customised copy survives. Presentation projects and Customer Kits are never touched.
 
-Build it yourself from a checkout:
+### From the portable zip
+
+Same payload, no installer: extract `VibePPT-<version>-portable.zip` anywhere and double-click **Start VibePPT.cmd**. The first run registers the skills and adds the Start Menu shortcut, then opens Studio; later runs open Studio directly. **Uninstall.cmd** unregisters it, after which deleting the folder is the whole removal.
+
+This is the build to reach for when an endpoint security product eats the installer, because it contains no unsigned executable at all: the only binary in the payload is `node.exe`, validly signed by the OpenJS Foundation, and nothing writes to the registry. What it gives up is the Add/Remove Programs entry and `vibeppt` on PATH — call `vibeppt.cmd` inside the folder instead.
+
+If the zip was downloaded rather than copied from a drive, right-click it → **Properties** → tick **Unblock** before extracting, or Windows will warn on the `.cmd` files.
+
+### Building both artifacts
 
 ```powershell
-winget install --id JRSoftware.InnoSetup     # once, for the compiler
-powershell -ExecutionPolicy Bypass -File .\scripts\build-installer.ps1
+winget install --id JRSoftware.InnoSetup     # once, for the installer compiler
+powershell -ExecutionPolicy Bypass -File .\scripts\build-release.ps1
 ```
 
-The result lands in `dist-installer\`. It bundles whatever `node.exe` the build machine runs, which must be version 22 or newer.
+Both land in `dist-installer\`. Without Inno Setup the script warns and builds the portable zip alone; `-SkipInstaller` does the same deliberately. Either way it bundles whatever `node.exe` the build machine runs, which must be version 22 or newer.
 
 **Sign the executable before shipping it to anyone.** Unsigned, it shows *"Windows protected your PC"* on first run and the user must click **More info → Run anyway**. That is the mild failure. The severe one was observed during development: Kaspersky Endpoint Security deleted the installer *while it was running*, leaving a half-copied folder, no Start Menu entry, no uninstall entry and no closing dialog — indistinguishable, from the user's side, from the installer doing nothing. Endpoint products score an unsigned binary that drops executables and edits `PATH`, and the behaviour is not deterministic: a later build of the same installer ran untouched on the same machine.
 

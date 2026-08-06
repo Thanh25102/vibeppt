@@ -62,16 +62,16 @@ jobs:
       - run: npm ci --ignore-scripts
       - run: npm test
       - run: choco install innosetup --no-progress -y
-      - run: powershell -ExecutionPolicy Bypass -File .\scripts\build-installer.ps1
+      - run: powershell -ExecutionPolicy Bypass -File .\scripts\build-release.ps1
       - run: npm pack
       - uses: actions/upload-artifact@v4
         with:
           name: vibeppt-windows
           path: |
-            dist-installer/*.exe
+            dist-installer/*
             *.tgz
       - if: github.event_name == 'release'
-        run: gh release upload "$env:VERSION" (Get-ChildItem dist-installer\*.exe, *.tgz | ForEach-Object FullName) --clobber
+        run: gh release upload "$env:VERSION" (Get-ChildItem dist-installer\*, *.tgz -File | ForEach-Object FullName) --clobber
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

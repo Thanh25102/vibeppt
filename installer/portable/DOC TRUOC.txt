@@ -1,0 +1,76 @@
+VibePPT — bản chạy trực tiếp, không cần cài đặt
+===============================================
+
+Nếu bạn tải file ZIP này từ internet, làm bước này TRƯỚC KHI giải nén:
+chuột phải file ZIP → Properties → tick ô "Unblock" ở dưới cùng → OK.
+Bỏ qua bước này Windows sẽ cảnh báo khi bạn chạy file.
+
+Sau đó giải nén cả thư mục ra chỗ nào bạn muốn, ví dụ ổ D hoặc Desktop.
+Đừng chạy trực tiếp từ bên trong file ZIP.
+
+
+BẮT ĐẦU
+-------
+
+Bấm đúp vào:  Start VibePPT.cmd
+
+Lần đầu sẽ mất khoảng một phút để đăng ký với Codex / Claude Code và tạo lối
+tắt trong Start Menu. Những lần sau mở ngay.
+
+Trình duyệt sẽ tự bật lên trang VibePPT Studio. Trang này chạy hoàn toàn trên
+máy bạn — không có tài khoản, không gửi gì lên mạng, không cần internet.
+
+Đóng cửa sổ đen là tắt Studio.
+
+
+MÁY CẦN CÓ GÌ
+-------------
+
+- Windows 10 hoặc 11
+- Microsoft PowerPoint bản cài trên máy (không phải bản web)
+- Microsoft Edge hoặc Google Chrome
+
+KHÔNG cần cài Node.js. Bộ này đã mang sẵn.
+
+
+LÀM MỘT BỘ SLIDE ĐẦU TIÊN
+-------------------------
+
+1. Trong Studio, chọn một mẫu bạn thích.
+2. Nhập vài dòng mô tả: nói cho ai nghe, họ cần quyết định gì, dài bao lâu.
+3. Chọn thư mục lưu, đính kèm tài liệu nguồn và logo nếu có.
+4. Bấm "Open VS Code & copy prompt".
+5. Mở Codex hoặc Claude Code, bấm Ctrl+V rồi Enter.
+
+Trợ lý AI sẽ đọc yêu cầu, dựng nội dung, tạo file PowerPoint, tự xem lại
+hình đã dựng rồi sửa những chỗ chưa đạt.
+
+File .pptx tạo ra mở bằng PowerPoint sửa được bình thường — chữ vẫn là chữ,
+biểu đồ vẫn là biểu đồ, không phải ảnh chụp.
+
+
+GỠ RA
+-----
+
+Bấm đúp vào:  Uninstall.cmd
+Rồi xoá thư mục này.
+
+Các file thuyết trình bạn đã tạo nằm ở nơi bạn chọn lúc đầu, không bị xoá.
+
+
+KHI GẶP TRỤC TRẶC
+-----------------
+
+"Windows protected your PC"
+  Bấm "More info" rồi "Run anyway". Xuất hiện vì phần mềm chưa mua chứng chỉ
+  ký số, không phải vì có virus.
+
+Bấm xong mà không thấy gì xảy ra
+  Phần mềm diệt virus có thể đã chặn. Thêm thư mục VibePPT vào danh sách loại
+  trừ của chương trình diệt virus, hoặc nhờ bộ phận IT hỗ trợ.
+
+Studio báo không tìm thấy trình duyệt
+  Cài Microsoft Edge hoặc Google Chrome rồi chạy lại.
+
+Không tìm thấy PowerPoint
+  Bộ slide vẫn tạo được, nhưng bước kiểm tra chất lượng cuối sẽ bị bỏ qua.

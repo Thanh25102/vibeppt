@@ -1,6 +1,19 @@
-param([Parameter(Mandatory = $true)][string]$PackageRoot)
+param(
+  [Parameter(Mandatory = $true)][string]$PackageRoot,
+  [switch]$Remove
+)
 
 $ErrorActionPreference = "Stop"
+$shortcutPath = Join-Path $env:APPDATA "Microsoft\Windows\Start Menu\Programs\VibePPT Studio.lnk"
+
+if ($Remove) {
+  if (Test-Path $shortcutPath) {
+    Remove-Item $shortcutPath -Force
+    Write-Output "Start Menu shortcut removed."
+  }
+  else { Write-Output "No Start Menu shortcut to remove." }
+  return
+}
 
 # Presentations.Open can leave a half-dead COM object that throws on Quit, so every release is
 # wrapped. A missing PowerPoint is a reportable state here, not a failure: the renderer still works.
@@ -22,11 +35,10 @@ if (-not (Test-Path $studioScript)) {
   Write-Output "start-studio.ps1 is missing, so no Start Menu shortcut was created."
   return
 }
-$startMenu = Join-Path $env:APPDATA "Microsoft\Windows\Start Menu\Programs"
-[System.IO.Directory]::CreateDirectory($startMenu) | Out-Null
+[System.IO.Directory]::CreateDirectory((Split-Path -Parent $shortcutPath)) | Out-Null
 $shell = New-Object -ComObject WScript.Shell
 try {
-  $shortcut = $shell.CreateShortcut((Join-Path $startMenu "VibePPT Studio.lnk"))
+  $shortcut = $shell.CreateShortcut($shortcutPath)
   $shortcut.TargetPath = Join-Path $PSHOME "powershell.exe"
   $shortcut.Arguments = "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$studioScript`""
   $shortcut.WorkingDirectory = $PackageRoot

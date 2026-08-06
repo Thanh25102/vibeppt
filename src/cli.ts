@@ -363,32 +363,49 @@ const SKILL_TARGETS = [
   { agent: "Claude Code", home: ".claude" },
 ] as const;
 
+function skillTargets(): Array<{ agent: string; home: string; directory: string }> {
+  return SKILL_TARGETS.map((target) => ({ ...target, directory: path.join(homedir(), target.home, "skills", "beautiful-ppt") }));
+}
+
+/**
+ * Moves an installed skill aside instead of deleting it. A backup left beside the skill would be
+ * a valid SKILL.md of its own, so the agent would load the stale copy as a second skill; parking
+ * it under ~/.vibeppt keeps an edited copy without that happening.
+ */
+async function archiveSkill(target: { home: string; directory: string }, stamp: string): Promise<string | null> {
+  if (!(await exists(target.directory))) return null;
+  const backup = path.join(homedir(), ".vibeppt", "skill-backups", `${target.home.replace(/^\./, "")}-${stamp}`);
+  await mkdir(path.dirname(backup), { recursive: true });
+  await rename(target.directory, backup);
+  return backup;
+}
+
 async function commandSetup(args: ParsedArgs): Promise<void> {
+  const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const windows = process.platform === "win32";
+
+  if (args.flags.has("remove")) {
+    for (const target of skillTargets()) {
+      const backup = await archiveSkill(target, stamp);
+      console.log(backup ? `${target.agent} skill removed, kept at ${backup}` : `${target.agent} skill was not installed.`);
+    }
+    if (windows) console.log(await runPowerShell("setup-windows.ps1", ["-PackageRoot", packageRoot, "-Remove"]));
+    console.log("VibePPT is unregistered. Delete this folder to finish removing it; your decks are untouched.");
+    return;
+  }
+
   const source = path.join(packageRoot, "skill", "beautiful-ppt");
   if (!(await exists(path.join(source, "SKILL.md")))) throw new Error(`Skill source is missing: ${source}`);
-  const home = homedir();
-  const stamp = new Date().toISOString().replace(/[:.]/g, "-");
-  for (const target of SKILL_TARGETS) {
-    const directory = path.join(home, target.home, "skills", "beautiful-ppt");
-    if (await exists(directory)) {
-      // A backup left beside the skill is itself a valid SKILL.md, so the agent would load the
-      // stale copy as a second skill. Park it outside the skills folder instead.
-      const backup = path.join(home, ".vibeppt", "skill-backups", `${target.home.replace(/^\./, "")}-${stamp}`);
-      await mkdir(path.dirname(backup), { recursive: true });
-      await rename(directory, backup);
-      console.log(`Previous ${target.agent} skill moved to ${backup}`);
-    }
-    await mkdir(path.dirname(directory), { recursive: true });
-    await cp(source, directory, { recursive: true });
-    console.log(`${target.agent} skill: ${directory}`);
+  for (const target of skillTargets()) {
+    const backup = await archiveSkill(target, stamp);
+    if (backup) console.log(`Previous ${target.agent} skill moved to ${backup}`);
+    await mkdir(path.dirname(target.directory), { recursive: true });
+    await cp(source, target.directory, { recursive: true });
+    console.log(`${target.agent} skill: ${target.directory}`);
   }
-  if (process.platform !== "win32") {
-    console.log("Not Windows: skipped the PowerPoint check and the Start Menu shortcut.");
-  } else if (args.flags.has("no-shortcut")) {
-    console.log("Skipped the Start Menu shortcut.");
-  } else {
-    console.log(await runPowerShell("setup-windows.ps1", ["-PackageRoot", packageRoot]));
-  }
+  if (!windows) console.log("Not Windows: skipped the PowerPoint check and the Start Menu shortcut.");
+  else if (args.flags.has("no-shortcut")) console.log("Skipped the Start Menu shortcut.");
+  else console.log(await runPowerShell("setup-windows.ps1", ["-PackageRoot", packageRoot]));
   console.log("Restart your agent, then ask: Use $beautiful-ppt to build a deck from this folder.");
 }
 
@@ -400,7 +417,7 @@ function help(): void {
   console.log(`VibePPT — local-first, hybrid PowerPoint generation
 
 Commands:
-  vibeppt setup [--no-shortcut]
+  vibeppt setup [--no-shortcut] [--remove]
   vibeppt studio
   vibeppt init <dir> [--template id] [--preset cinematic|editorial|corporate]
   vibeppt brand add <id> --from <dir> [--project .]

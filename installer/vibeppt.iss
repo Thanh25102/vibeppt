@@ -1,7 +1,10 @@
-; Payload is staged into installer\staging by scripts\build-installer.ps1; compile through that
-; script rather than opening this file directly, or the staging folder will be stale or missing.
+; The payload is staged by scripts\build-release.ps1, which passes both defines below. Compile
+; through that script rather than opening this file directly, or the payload will be missing.
 #ifndef AppVersion
   #define AppVersion "0.0.0"
+#endif
+#ifndef PayloadDir
+  #define PayloadDir "VibePPT-" + AppVersion
 #endif
 ; VersionInfoVersion has to be purely numeric, so drop any prerelease suffix rather than keeping
 ; a second hardcoded version that drifts from package.json on the next bump.
@@ -47,7 +50,7 @@ WizardStyle=modern
 Name: "en"; MessagesFile: "compiler:Default.isl"
 
 [Files]
-Source: "staging\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#PayloadDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 ; A Start Menu group rather than a loose shortcut, so the uninstaller sits next to the app the
