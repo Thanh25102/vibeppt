@@ -6,3 +6,5 @@ output/
 SlideOcean_Infographix/
 *.vibeppt-kit
 *.tgz
+installer/staging/
+dist-installer/

@@ -39,7 +39,24 @@ Open `http://SERVER_IP:8080`. Put an existing reverse proxy and TLS in front of 
 
 ## Install
 
-Two paths, one end state: a global `vibeppt` command, the `beautiful-ppt` skill installed for both Codex and Claude Code, and a **VibePPT Studio** entry in the Windows Start Menu.
+Three paths, one end state: a `vibeppt` command on PATH, the `beautiful-ppt` skill installed for both Codex and Claude Code, and a **VibePPT Studio** entry in the Windows Start Menu.
+
+### From the Windows installer
+
+The friendliest option, and the only one that needs no terminal and no Node.js: download `VibePPT-Setup-<version>.exe` and run it. It installs per-user to `%LOCALAPPDATA%\VibePPT`, so Windows never asks for administrator rights.
+
+The installer carries its own Node runtime (about 26 MB compressed), puts `vibeppt` on the user PATH, installs the agent skills, and adds the Start Menu entry. Uninstall from Settings removes the folder and the PATH entry; the installed skills are left in place in case they were edited.
+
+Build it yourself from a checkout:
+
+```powershell
+winget install --id JRSoftware.InnoSetup     # once, for the compiler
+powershell -ExecutionPolicy Bypass -File .\scripts\build-installer.ps1
+```
+
+The result lands in `dist-installer\`. It bundles whatever `node.exe` the build machine runs, which must be version 22 or newer.
+
+**Unsigned builds trip SmartScreen.** Until the executable is signed, the first run shows *"Windows protected your PC"* and the user has to click **More info → Run anyway**. Plan for a code signing certificate before this goes to anyone who would read that screen as a virus warning.
 
 ### From a git checkout
 

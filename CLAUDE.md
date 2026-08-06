@@ -23,12 +23,21 @@ vibeppt help        # CLI surface
 `vibeppt` is linked globally (`C:\Program Files\nodejs\vibeppt.ps1`) and runs `dist/cli.js`,
 so **run `npm run build` before testing a `src/` change through the CLI**.
 
-Deployment has two shapes and one end state. A checkout uses `scripts/install.ps1`
-(node check → build → `npm link` → `vibeppt setup`); a handoff uses `npm run pack` then
-`npm install -g --ignore-scripts <tarball>` + `vibeppt setup`. Everything after the install —
-skills for both agents, the PowerPoint probe, the Start Menu shortcut — lives in `vibeppt setup`
-precisely so both shapes share one implementation; `packageRoot` resolves correctly either way.
-Anything added to that flow belongs in `commandSetup`, not in a second PowerShell script.
+Deployment has three shapes and one end state. A checkout uses `scripts/install.ps1` (node check
+→ build → `npm link` → `vibeppt setup`); a developer handoff uses `npm run pack` then
+`npm install -g --ignore-scripts <tarball>` + `vibeppt setup`; a non-technical user gets
+`scripts/build-installer.ps1` → `dist-installer/VibePPT-Setup-<version>.exe`, which bundles
+`node.exe` and needs neither Node nor a terminal. Everything after the install — skills for both
+agents, the PowerPoint probe, the Start Menu shortcut — lives in `vibeppt setup` precisely so all
+three share one implementation; `packageRoot` resolves correctly in every layout. Anything added
+to that flow belongs in `commandSetup`, not in a second PowerShell script.
+
+The installer is per-user (`PrivilegesRequired=lowest`, `{localappdata}\VibePPT`) because the
+agent has to run `vibeppt` from a shell, and a per-machine install would demand elevation for a
+tool that never needs it. Its `[Code]` section edits `HKCU\Environment\Path` by hand: `Pos` there
+runs over a copy padded with separators so a first-position match is found, and **every index must
+be translated back before `Delete` touches the real value** — getting that wrong removes the entry
+but leaves its separator, which is only visible by diffing PATH across an install/uninstall cycle.
 
 ## Layout
 
