@@ -44,6 +44,37 @@ jobs:
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
 
+  # The two artifacts a user downloads: the installer for someone who should never see a terminal,
+  # and the npm tarball for someone who lives in one. Windows-only because the installer bundles
+  # node.exe and Inno Setup compiles nowhere else.
+  windows:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name || github.ref }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm test
+      - run: choco install innosetup --no-progress -y
+      - run: powershell -ExecutionPolicy Bypass -File .\scripts\build-installer.ps1
+      - run: npm pack
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vibeppt-windows
+          path: |
+            dist-installer/*.exe
+            *.tgz
+      - if: github.event_name == 'release'
+        run: gh release upload "$env:VERSION" (Get-ChildItem dist-installer\*.exe, *.tgz | ForEach-Object FullName) --clobber
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   sample:
     if: github.event_name == 'release'
     runs-on: ubuntu-latest

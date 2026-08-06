@@ -43,9 +43,11 @@ Three paths, one end state: a `vibeppt` command on PATH, the `beautiful-ppt` ski
 
 ### From the Windows installer
 
-The friendliest option, and the only one that needs no terminal and no Node.js: download `VibePPT-Setup-<version>.exe` and run it. It installs per-user to `%LOCALAPPDATA%\VibePPT`, so Windows never asks for administrator rights.
+The friendliest option, and the only one that needs no terminal and no Node.js: download `VibePPT-Setup-<version>.exe` from the [latest release](https://github.com/Thanh25102/vibeppt/releases/latest) and run it. Every release also carries the npm tarball for the paths below. It installs per-user to `%LOCALAPPDATA%\VibePPT`, so Windows never asks for administrator rights.
 
-The installer carries its own Node runtime (about 26 MB compressed), puts `vibeppt` on the user PATH, installs the agent skills, and adds the Start Menu entry. Uninstall from Settings removes the folder and the PATH entry; the installed skills are left in place in case they were edited.
+The installer carries its own Node runtime (about 26 MB compressed), puts `vibeppt` on the user PATH, installs the agent skills, and adds a **VibePPT** Start Menu group.
+
+To remove it, either open **Settings → Apps → VibePPT → Uninstall**, or use **Start Menu → VibePPT → Uninstall VibePPT**. Uninstalling deletes the program folder, removes the PATH entry, and takes the `beautiful-ppt` skill back out of `~/.codex/skills` and `~/.claude/skills` — leaving it would tell the agent to run a `vibeppt` command that no longer exists. Nothing is destroyed: the skill folders are moved to `~/.vibeppt/skill-backups/`, so a customised copy survives. Presentation projects and Customer Kits are never touched.
 
 Build it yourself from a checkout:
 
