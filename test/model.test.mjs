@@ -30,6 +30,15 @@ test("sample deck validates and renders the native hybrid contract", async () =>
   assert.match(html, /window\.__vibePpt/);
 });
 
+test("the deck stylesheet parses as CSS", async () => {
+  // A `;` typed where a `{` belongs makes the browser drop that rule *and the next one*, which is
+  // invisible in every structural check. It also unbalances the braces, so counting them catches it.
+  const deck = JSON.parse(await readFile(path.join(root, "examples/northstar/deck.json"), "utf8"));
+  const brand = JSON.parse(await readFile(path.join(root, "presets/cinematic/brand.json"), "utf8"));
+  const css = renderDeckHtml(deck, brand).match(/<style>([\s\S]*?)<\/style>/)[1];
+  assert.equal((css.match(/{/g) ?? []).length, (css.match(/}/g) ?? []).length);
+});
+
 test("lint rejects remote assets and malformed chart data", () => {
   const deck = {
     version: 1,
